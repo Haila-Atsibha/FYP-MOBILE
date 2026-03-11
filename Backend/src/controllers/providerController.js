@@ -1,0 +1,327 @@
+const pool = require('../db');
+
+exports.createProviderProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { bio } = req.body;
+
+        // Check if profile already exists
+        const existingProfile = await pool.query(
+            "SELECT * FROM provider_profiles WHERE user_id = $1",
+            [userId]
+        );
+
+        if (existingProfile.rows.length > 0) {
+            return res.status(400).json({
+                message: "Provider profile already exists"
+            });
+        }
+
+        const newProfile = await pool.query(
+            "INSERT INTO provider_profiles (user_id, bio) VALUES ($1, $2) RETURNING *",
+            [userId, bio]
+        );
+
+        res.status(201).json({
+            message: "Provider profile created successfully",
+            profile: newProfile.rows[0]
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Server error",
+            error
+        });
+    }
+};
+
+
+exports.getMyProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Use LEFT JOIN to ensure we get user info even if no profile exists yet
+        const result = await pool.query(
+            `SELECT 
+                u.id as user_id, u.name, u.email, u.phone, u.status AS user_status, u.profile_image_url,
+                p.id as profile_id, p.bio, p.average_rating, p.is_verified, p.verification_status
+             FROM users u
+             LEFT JOIN provider_profiles p ON u.id = p.user_id 
+             WHERE u.id = $1`,
+            [userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.error("Get My Profile Error:", error);
+        res.status(500).json({
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
+
+exports.updateMyProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { bio, name, phone } = req.body;
+
+        // Start a transaction
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
+
+            // Update users table (name and phone)
+            await client.query(
+                "UPDATE users SET name = $1, phone = $2 WHERE id = $3",
+                [name, phone, userId]
+            );
+
+            // Upsert provider_profiles table (bio)
+            const updatedProfile = await client.query(
+                `INSERT INTO provider_profiles (user_id, bio) 
+                 VALUES ($1, $2) 
+                 ON CONFLICT (user_id) 
+                 DO UPDATE SET bio = EXCLUDED.bio 
+                 RETURNING *`,
+                [userId, bio]
+            );
+
+            await client.query('COMMIT');
+
+            res.json({
+                message: "Profile updated successfully",
+                profile: updatedProfile.rows[0]
+            });
+        } catch (error) {
+            await client.query('ROLLBACK');
+            throw error;
+        } finally {
+            client.release();
+        }
+    } catch (error) {
+        console.error("Error in updateMyProfile:", error);
+        res.status(500).json({
+            message: "Server error",
+            error
+        });
+    }
+};
+exports.getPublicProviders = async (req, res) => {
+    try {
+        const { category } = req.query;
+        let query = `
+            SELECT 
+                u.id, u.name, u.profile_image_url, 
+                p.bio, p.average_rating, p.id as provider_profile_id,
+                ARRAY_AGG(DISTINCT sc.name) as categories
+            FROM users u
+            JOIN provider_profiles p ON u.id = p.user_id
+            LEFT JOIN (
+                SELECT provider_id as user_id, category_id FROM provider_categories
+                UNION
+                SELECT p2.user_id, s.category_id FROM services s JOIN provider_profiles p2 ON s.provider_id = p2.id
+            ) all_cats ON u.id = all_cats.user_id
+            LEFT JOIN service_categories sc ON all_cats.category_id = sc.id
+            WHERE u.status = 'approved' 
+              AND p.subscription_status = 'active' 
+              AND p.subscription_expiry > CURRENT_DATE
+        `;
+        const values = [];
+
+        if (category && !isNaN(parseInt(category))) {
+            const catInt = parseInt(category);
+            query += ` AND (
+                EXISTS (SELECT 1 FROM services s2 WHERE s2.provider_id = p.id AND s2.category_id = $1)
+                OR EXISTS (SELECT 1 FROM provider_categories pc WHERE pc.provider_id = u.id AND pc.category_id = $1)
+            )`;
+            values.push(catInt);
+        }
+
+        query += ` GROUP BY u.id, p.id ORDER BY p.average_rating DESC NULLS LAST`;
+
+        const result = await pool.query(query, values);
+
+        // Clean up categories (remove nulls)
+        const cleaned = result.rows.map(row => ({
+            ...row,
+            categories: (row.categories || []).filter(c => c !== null)
+        }));
+
+        res.json(cleaned);
+
+    } catch (error) {
+        console.error("Get Public Providers Error:", error);
+        res.status(500).json({
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
+
+exports.getTopProviders = async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                u.id, u.name, u.profile_image_url, 
+                p.bio, p.average_rating, p.id as provider_profile_id,
+                (SELECT COUNT(*) FROM bookings WHERE provider_id = p.id AND status = 'Completed') as "completedJobs",
+                (SELECT name FROM service_categories sc 
+                 JOIN services s ON sc.id = s.category_id 
+                 WHERE s.provider_id = p.id 
+                 LIMIT 1) as "category"
+            FROM users u
+            JOIN provider_profiles p ON u.id = p.user_id
+            WHERE u.status = 'approved' 
+              AND p.subscription_status = 'active' 
+              AND p.subscription_expiry > CURRENT_DATE
+            ORDER BY p.average_rating DESC NULLS LAST
+            LIMIT 6
+        `);
+        res.json(result.rows);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+exports.getPublicProviderProfile = async (req, res) => {
+    try {
+        const { id } = req.params; // Provider Profile ID
+
+        // Get provider info
+        const providerRes = await pool.query(
+            `SELECT 
+                u.name, u.profile_image_url, 
+                p.id as provider_profile_id, p.bio, p.average_rating,
+                u.id as user_id
+             FROM provider_profiles p
+             JOIN users u ON p.user_id = u.id
+             WHERE p.id = $1 AND u.status = 'approved'`,
+            [id]
+        );
+
+        if (providerRes.rows.length === 0) {
+            return res.status(404).json({ message: "Provider not found" });
+        }
+
+        const provider = providerRes.rows[0];
+
+        // Get services for this provider
+        const servicesRes = await pool.query(
+            "SELECT * FROM services WHERE provider_id = $1",
+            [id]
+        );
+
+        res.json({
+            ...provider,
+            services: servicesRes.rows
+        });
+
+    } catch (error) {
+        console.error("Get Public Provider Profile Error:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+exports.getProviderStats = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Find provider profile ID
+        const profileRes = await pool.query(
+            "SELECT id FROM provider_profiles WHERE user_id = $1",
+            [userId]
+        );
+
+        if (profileRes.rows.length === 0) {
+            return res.status(404).json({ message: "Provider profile not found" });
+        }
+
+        const providerProfileId = profileRes.rows[0].id;
+
+        // 1. Pending Bookings
+        const pendingRes = await pool.query(
+            "SELECT COUNT(*)::int as count FROM bookings WHERE provider_id = $1 AND status = 'pending'",
+            [providerProfileId]
+        );
+
+        // 2. Active Bookings (Accepted)
+        const activeRes = await pool.query(
+            "SELECT COUNT(*)::int as count FROM bookings WHERE provider_id = $1 AND status = 'accepted'",
+            [providerProfileId]
+        );
+
+        // 3. Completed Jobs
+        const completedRes = await pool.query(
+            "SELECT COUNT(*)::int as count FROM bookings WHERE provider_id = $1 AND status = 'completed'",
+            [providerProfileId]
+        );
+
+        // 4. Total Earnings
+        const earningsRes = await pool.query(
+            "SELECT COALESCE(SUM(total_price), 0)::numeric as total FROM bookings WHERE provider_id = $1 AND status = 'completed'",
+            [providerProfileId]
+        );
+
+        // 5. Average Rating and Total Reviews
+        const reviewStatsRes = await pool.query(
+            `SELECT 
+                COALESCE(average_rating, 0)::numeric as "averageRating",
+                (SELECT COUNT(*)::int FROM reviews WHERE provider_id = $1) as "totalReviews",
+                subscription_status as "subscriptionStatus",
+                subscription_expiry as "subscriptionExpiry"
+             FROM provider_profiles 
+             WHERE id = $1`,
+            [providerProfileId]
+        );
+
+        const stats = {
+            pendingRequests: pendingRes.rows[0]?.count || 0,
+            activeBookings: activeRes.rows[0]?.count || 0,
+            completedJobs: completedRes.rows[0]?.count || 0,
+            totalEarnings: Number(earningsRes.rows[0]?.total || 0),
+            averageRating: Number(reviewStatsRes.rows[0]?.averageRating || 0),
+            totalReviews: reviewStatsRes.rows[0]?.totalReviews || 0,
+            subscriptionStatus: reviewStatsRes.rows[0]?.subscriptionStatus,
+            subscriptionExpiry: reviewStatsRes.rows[0]?.subscriptionExpiry
+        };
+
+        console.log("DEBUG: getProviderStats SUCCESS", stats);
+        res.json(stats);
+    } catch (error) {
+        console.error("DEBUG: getProviderStats Error:", error.message, error.stack);
+        res.status(500).json({
+            message: "Server error in stats",
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+};
+
+exports.getMyCategories = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const result = await pool.query(
+            `SELECT sc.id, sc.name 
+             FROM service_categories sc
+             JOIN provider_categories pc ON sc.id = pc.category_id
+             WHERE pc.provider_id = $1`,
+            [userId]
+        );
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Get My Categories Error:", error);
+        res.status(500).json({
+            message: "Server error",
+            error: error.message
+        });
+    }
+};
