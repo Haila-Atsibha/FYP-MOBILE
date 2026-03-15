@@ -38,7 +38,7 @@ async function uploadFile(buffer, mimeType, folder = '') {
  * @returns {string} signedUrl
  */
 async function getSignedUrl(pathOrUrl, expiresIn = 3600) {
-    if (!pathOrUrl) return null;
+    if (!pathOrUrl || typeof pathOrUrl !== 'string') return null;
 
     const bucketName = process.env.SUPABASE_BUCKET || 'QuickServe_files';
     let path = pathOrUrl;
@@ -48,6 +48,11 @@ async function getSignedUrl(pathOrUrl, expiresIn = 3600) {
         const parts = pathOrUrl.split(`/${bucketName}/`);
         if (parts.length > 1) {
             path = parts[1];
+        } else {
+            // If it's an http URL but doesn't contain the bucket name,
+            // it might be an already signed URL or a public URL from another bucket/source.
+            // In this case, we can return it as is, assuming it's valid.
+            return pathOrUrl;
         }
     }
 

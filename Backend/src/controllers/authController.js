@@ -19,7 +19,8 @@ exports.registerUser = async (req, res) => {
             !req.files.nationalId ||
             !req.files.verificationSelfie
         ) {
-            return res.status(400).json({ message: "All verification files are required" });
+            const received = req.files ? Object.keys(req.files).join(", ") : "none";
+            return res.status(400).json({ message: `All verification files are required. Received files: ${received || 'none'}` });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);

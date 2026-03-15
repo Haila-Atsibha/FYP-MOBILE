@@ -287,42 +287,50 @@ exports.getBookings = async (req, res) => {
 
 exports.getUsers = async (req, res) => {
     try {
+        console.log("Fetching all users from DB...");
         const result = await pool.query(`
             SELECT id, name, email, role, status, created_at, profile_image_url, national_id_url, verification_selfie_url
             FROM users
             ORDER BY created_at DESC
         `);
+        console.log(`Found ${result.rows.length} users.`);
 
         const { getSignedUrl } = require('../utils/supabaseHelper');
 
         const usersWithSignedUrls = await Promise.all(result.rows.map(async (user) => {
-            // Fetch educational documents if user is a provider
-            let educational_documents = [];
-            if (user.role === 'provider') {
-                const docsResult = await pool.query(
-                    "SELECT document_url, document_name FROM provider_documents WHERE provider_id = $1",
-                    [user.id]
-                );
+            try {
+                // Fetch educational documents if user is a provider
+                let educational_documents = [];
+                if (user.role === 'provider') {
+                    const docsResult = await pool.query(
+                        "SELECT document_url, document_name FROM provider_documents WHERE provider_id = $1",
+                        [user.id]
+                    );
 
-                educational_documents = await Promise.all(docsResult.rows.map(async (doc) => ({
-                    name: doc.document_name,
-                    url: await getSignedUrl(doc.document_url)
-                })));
+                    educational_documents = await Promise.all(docsResult.rows.map(async (doc) => ({
+                        name: doc.document_name,
+                        url: await getSignedUrl(doc.document_url)
+                    })));
+                }
+
+                return {
+                    ...user,
+                    profile_image_url: await getSignedUrl(user.profile_image_url),
+                    national_id_url: await getSignedUrl(user.national_id_url),
+                    verification_selfie_url: await getSignedUrl(user.verification_selfie_url),
+                    educational_documents
+                };
+            } catch (innerError) {
+                console.error(`Error processing user ${user.id}:`, innerError.message);
+                // Return user without signed URLs if processing fails to avoid failing entire request
+                return { ...user, educational_documents: [] };
             }
-
-            return {
-                ...user,
-                profile_image_url: await getSignedUrl(user.profile_image_url),
-                national_id_url: await getSignedUrl(user.national_id_url),
-                verification_selfie_url: await getSignedUrl(user.verification_selfie_url),
-                educational_documents
-            };
         }));
 
         res.json(usersWithSignedUrls);
     } catch (error) {
-        console.error("Get Users Error:", error.message);
-        res.status(500).json({ message: 'Server error while fetching users', error: error.message });
+        console.error("CRITICAL Get Users Error:", error);
+        res.status(500).json({ message: 'Server error while fetching users', error: error.message || "Unknown Error" });
     }
 };
 
@@ -424,12 +432,14 @@ exports.getActivity = async (req, res) => {
 
 exports.getSubscriptions = async (req, res) => {
     try {
+        console.log("Fetching subscription stats...");
         // 1. Get Monthly Revenue
         const revRes = await pool.query(`
             SELECT COALESCE(SUM(amount), 0) as total 
             FROM payments 
             WHERE created_at >= NOW() - INTERVAL '30 days'
         `);
+        console.log("Monthly revenue fetched.");
 
         // 2. Get Active/Expiring Stats
         const profileStats = await pool.query(`
@@ -438,6 +448,7 @@ exports.getSubscriptions = async (req, res) => {
                 COUNT(*) FILTER (WHERE subscription_status = 'active' AND subscription_expiry <= NOW() + INTERVAL '7 days') as expiring_soon
             FROM provider_profiles
         `);
+        console.log("Profile stats fetched.");
 
         // 3. Get Recent History
         const historyRes = await pool.query(`
@@ -454,6 +465,7 @@ exports.getSubscriptions = async (req, res) => {
             ORDER BY p.created_at DESC
             LIMIT 20
         `);
+        console.log(`History fetched (${historyRes.rows.length} rows).`);
 
         res.json({
             monthlyRevenue: parseFloat(revRes.rows[0].total).toFixed(2),
@@ -462,7 +474,7 @@ exports.getSubscriptions = async (req, res) => {
             history: historyRes.rows
         });
     } catch (error) {
-        console.error("Get Subscriptions Error:", error.message);
-        res.status(500).json({ message: "Server error while fetching subscriptions", error: error.message });
+        console.error("Get Subscriptions Error:", error);
+        res.status(500).json({ message: "Server error while fetching subscriptions", error: error.message || "Unknown Error" });
     }
 };
