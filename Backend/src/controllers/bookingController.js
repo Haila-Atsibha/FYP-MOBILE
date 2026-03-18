@@ -62,7 +62,8 @@ exports.getMyBookings = async (req, res) => {
         const userId = req.user.id;
 
         const bookings = await pool.query(
-            `SELECT b.*, s.title, s.price, u.name as provider_name
+            `SELECT b.*, s.title, s.price, u.name as provider_name,
+                    EXISTS(SELECT 1 FROM reviews r WHERE r.booking_id = b.id) as is_reviewed
              FROM bookings b
              JOIN services s ON b.service_id = s.id
              JOIN provider_profiles pp ON b.provider_id = pp.id

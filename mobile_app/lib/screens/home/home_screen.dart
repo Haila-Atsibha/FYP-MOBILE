@@ -9,6 +9,7 @@ import 'package:mobile_app/screens/booking/booking_screen.dart';
 import 'package:mobile_app/screens/booking/my_bookings_screen.dart';
 import 'package:mobile_app/screens/chat/conversation_list_screen.dart';
 import 'package:mobile_app/screens/complaint/complaint_screen.dart';
+import 'package:mobile_app/screens/customer/customer_profile_screen.dart';
 import 'package:mobile_app/widgets/top_providers_widget.dart';
 import 'package:mobile_app/widgets/platform_rating_widget.dart';
 import 'package:provider/provider.dart';
@@ -341,6 +342,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const Spacer(),
           const Divider(),
+          ListTile(
+            leading: const Icon(Icons.person_outline),
+            title: const Text('Profile Settings'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const CustomerProfileScreen()),
+              );
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.pink),
             title: const Text('Logout', style: TextStyle(color: Colors.pink)),

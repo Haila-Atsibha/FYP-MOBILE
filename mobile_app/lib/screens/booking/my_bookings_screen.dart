@@ -131,7 +131,24 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                               onPressed: () => _cancelBooking(booking.id),
                               style: TextButton.styleFrom(foregroundColor: Colors.red),
                               child: const Text('Cancel Booking'),
-                            ),
+                            )
+                          else if (booking.status.toLowerCase() == 'completed')
+                            booking.isReviewed
+                                ? Row(
+                                    children: const [
+                                      Icon(Icons.check_circle, color: Colors.green, size: 16),
+                                      SizedBox(width: 4),
+                                      Text('Reviewed', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                                    ],
+                                  )
+                                : ElevatedButton(
+                                    onPressed: () => _showReviewDialog(booking),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                      minimumSize: Size.zero,
+                                    ),
+                                    child: const Text('Rate & Review', style: TextStyle(fontSize: 12)),
+                                  ),
                         ],
                       ),
                     ],
@@ -142,6 +159,96 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
           );
         },
       ),
+    );
+  }
+
+  void _showReviewDialog(Booking booking) {
+    double _rating = 5.0;
+    final _commentController = TextEditingController();
+    bool _isSubmitting = false;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: const Text('Rate & Review'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('How was your experience with ${booking.providerName ?? "the provider"}?'),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (index) {
+                        return IconButton(
+                          icon: Icon(
+                            index < _rating ? Icons.star : Icons.star_border,
+                            color: Colors.amber,
+                            size: 32,
+                          ),
+                          onPressed: () => setDialogState(() => _rating = index + 1.0),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _commentController,
+                      decoration: const InputDecoration(
+                        labelText: 'Comments (Optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                      maxLines: 3,
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: _isSubmitting ? null : () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: _isSubmitting
+                      ? null
+                      : () async {
+                          setDialogState(() => _isSubmitting = true);
+                          try {
+                            await context.read<ApiService>().submitReview(
+                                  bookingId: booking.id,
+                                  rating: _rating,
+                                  comment: _commentController.text.trim(),
+                                );
+                            if (mounted) {
+                              Navigator.pop(dialogContext);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Review submitted successfully!')),
+                              );
+                              setState(() {
+                                _loadBookings();
+                              });
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Failed: $e')),
+                              );
+                              setDialogState(() => _isSubmitting = false);
+                            }
+                          }
+                        },
+                  child: _isSubmitting
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Text('Submit'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 

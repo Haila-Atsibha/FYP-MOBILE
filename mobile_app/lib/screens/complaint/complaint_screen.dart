@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/screens/complaint/complaints_history_screen.dart';
 
 class ComplaintScreen extends StatefulWidget {
   const ComplaintScreen({super.key});
@@ -32,6 +33,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
           const SnackBar(content: Text('Complaint submitted successfully. We will review it soon.')),
         );
         Navigator.pop(context);
+        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ComplaintsHistoryScreen()));
       }
     } catch (e) {
       if (mounted) {
@@ -48,6 +50,17 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Report a Complaint'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history),
+            tooltip: 'Complaint History',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ComplaintsHistoryScreen()),
+              );
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),

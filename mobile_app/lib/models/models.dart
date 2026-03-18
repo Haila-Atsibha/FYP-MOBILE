@@ -97,6 +97,7 @@ class Booking {
   final String? providerName;
   final double? totalPrice;
   final String? description;
+  final bool isReviewed;
 
   Booking({
     required this.id,
@@ -109,6 +110,7 @@ class Booking {
     this.providerName,
     this.totalPrice,
     this.description,
+    this.isReviewed = false,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -123,6 +125,7 @@ class Booking {
       providerName: json['provider_name'],
       totalPrice: json['total_price'] != null ? double.parse(json['total_price'].toString()) : null,
       description: json['description'],
+      isReviewed: json['is_reviewed'] ?? false,
     );
   }
 }
@@ -503,6 +506,29 @@ class VerificationUser {
       educationalDocuments: json['educational_documents'] != null
           ? List<Map<String, dynamic>>.from(json['educational_documents'])
           : null,
+    );
+  }
+}
+
+class CustomerStats {
+  final int inProgress;
+  final int completed;
+  final int notifications;
+  final int saved;
+
+  CustomerStats({
+    required this.inProgress,
+    required this.completed,
+    required this.notifications,
+    required this.saved,
+  });
+
+  factory CustomerStats.fromJson(Map<String, dynamic> json) {
+    return CustomerStats(
+      inProgress: json['active'] ?? 0,
+      completed: json['completed'] ?? 0,
+      notifications: json['unread'] ?? 0,
+      saved: json['saved'] ?? 0,
     );
   }
 }

@@ -41,6 +41,11 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  void updateUser(User newUser) {
+    _user = newUser;
+    notifyListeners();
+  }
+
   void logout() {
     _user = null;
     _apiService.setToken('');

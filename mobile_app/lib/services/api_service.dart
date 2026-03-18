@@ -232,6 +232,67 @@ class ApiService {
     return jsonDecode(response.body);
   }
 
+  Future<Map<String, dynamic>> updateCustomerProfile({
+    required String name,
+    required String email,
+    XFile? profileImage,
+  }) async {
+    final request = http.MultipartRequest('PUT', Uri.parse('$_baseUrl/customer/profile'));
+    if (_token != null) {
+      request.headers['Authorization'] = 'Bearer $_token';
+    }
+    
+    request.fields['name'] = name;
+    request.fields['email'] = email;
+
+    if (profileImage != null) {
+      final bytes = await profileImage.readAsBytes();
+      String fName = profileImage.name;
+      if (fName.isEmpty || fName.contains(r'\')) fName = 'profileImage.jpg';
+      request.files.add(http.MultipartFile.fromBytes('profileImage', bytes, filename: fName));
+    }
+
+    final streamResponse = await request.send();
+    final response = await http.Response.fromStream(streamResponse);
+    
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      final message = jsonDecode(response.body)['message'] ?? 'Failed to update profile';
+      throw Exception(message);
+    }
+  }
+
+  Future<List<Complaint>> getMyComplaints() async {
+    final response = await http.get(Uri.parse('$_baseUrl/complaints/my'), headers: _headers);
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((item) => Complaint.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load my complaints');
+    }
+  }
+
+  Future<void> submitReview({
+    required int bookingId,
+    required double rating,
+    required String comment,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/reviews'),
+      headers: _headers,
+      body: jsonEncode({
+        'booking_id': bookingId,
+        'rating': rating,
+        'comment': comment,
+      }),
+    );
+    if (response.statusCode != 201) {
+      final message = jsonDecode(response.body)['message'] ?? 'Failed to submit review';
+      throw Exception(message);
+    }
+  }
+
   Future<Map<String, dynamic>> submitComplaint({
     required String subject,
     required String description,
@@ -255,6 +316,15 @@ class ApiService {
       return ProviderStats.fromJson(jsonDecode(response.body));
     } else {
       throw Exception('Failed to load provider stats');
+    }
+  }
+
+  Future<CustomerStats> getCustomerStats() async {
+    final response = await http.get(Uri.parse('$_baseUrl/customer/stats'), headers: _headers);
+    if (response.statusCode == 200) {
+      return CustomerStats.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Failed to load customer stats');
     }
   }
 
