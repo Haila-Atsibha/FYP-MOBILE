@@ -109,6 +109,63 @@ class ApiService {
     }
   }
 
+  Future<List<Service>> getMyProviderServices() async {
+    final response = await http.get(Uri.parse('$_baseUrl/services/me'), headers: _headers);
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((item) => Service.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load your services');
+    }
+  }
+
+  Future<Map<String, dynamic>> createService({
+    required int categoryId,
+    required String title,
+    required String description,
+    required double price,
+  }) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/services'),
+      headers: _headers,
+      body: jsonEncode({
+        'category_id': categoryId,
+        'title': title,
+        'description': description,
+        'price': price,
+      }),
+    );
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      final msg = jsonDecode(response.body)['message'] ?? 'Failed to create service';
+      throw Exception(msg);
+    }
+  }
+
+  Future<Map<String, dynamic>> updateService(int id, {
+    String? title,
+    String? description,
+    double? price,
+  }) async {
+    final Map<String, dynamic> body = {};
+    if (title != null) body['title'] = title;
+    if (description != null) body['description'] = description;
+    if (price != null) body['price'] = price;
+
+    final response = await http.put(
+      Uri.parse('$_baseUrl/services/$id'),
+      headers: _headers,
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      final msg = jsonDecode(response.body)['message'] ?? 'Failed to update service';
+      throw Exception(msg);
+    }
+  }
+
   // Categories
   Future<List<Category>> getCategories() async {
     final response = await http.get(Uri.parse('$_baseUrl/categories'), headers: _headers);
@@ -373,17 +430,67 @@ class ApiService {
     required String name,
     required String bio,
     required String phone,
+    XFile? profileImage,
   }) async {
-    final response = await http.put(
-      Uri.parse('$_baseUrl/providers/profile'),
+    final request = http.MultipartRequest('PUT', Uri.parse('$_baseUrl/providers/profile'));
+    if (_token != null) {
+      request.headers['Authorization'] = 'Bearer $_token';
+    }
+
+    request.fields['name'] = name;
+    request.fields['bio'] = bio;
+    request.fields['phone'] = phone;
+
+    if (profileImage != null) {
+      final bytes = await profileImage.readAsBytes();
+      String fName = profileImage.name;
+      if (fName.isEmpty || fName.contains(r'\')) fName = 'profileImage.jpg';
+      request.files.add(http.MultipartFile.fromBytes('profileImage', bytes, filename: fName));
+    }
+
+    final streamResponse = await request.send();
+    final response = await http.Response.fromStream(streamResponse);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      final message = jsonDecode(response.body)['message'] ?? 'Failed to update provider profile';
+      throw Exception(message);
+    }
+  }
+
+  Future<Map<String, String>> initializeSubscriptionPayment({double amount = 200}) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/payments/subscribe'),
       headers: _headers,
-      body: jsonEncode({
-        'name': name,
-        'bio': bio,
-        'phone': phone,
-      }),
+      body: jsonEncode({'amount': amount}),
     );
-    return jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      final resData = jsonDecode(response.body);
+      return {
+        'checkout_url': resData['checkout_url'].toString(),
+        'tx_ref': resData['tx_ref'].toString(),
+      };
+    } else {
+      throw Exception('Failed to initialize payment');
+    }
+  }
+
+  Future<void> verifySubscriptionPayment(String txRef) async {
+    final response = await http.get(Uri.parse('$_baseUrl/payments/verify-payment/$txRef'), headers: _headers);
+    if (response.statusCode != 200) {
+      throw Exception('Failed to verify payment: ${jsonDecode(response.body)['message']}');
+    }
+  }
+
+  Future<List<PaymentTransaction>> getMySubscriptionHistory() async {
+    final response = await http.get(Uri.parse('$_baseUrl/payments/history'), headers: _headers);
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((item) => PaymentTransaction.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load payment history');
+    }
   }
 
   // Admin Endpoints

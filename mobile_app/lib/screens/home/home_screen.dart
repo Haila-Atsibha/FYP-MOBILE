@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<TopProvider>> _providersFuture;
   late Future<List<Category>> _categoriesFuture;
   int? _selectedCategoryId;
+  bool _showRatingWidget = true;
 
   @override
   void initState() {
@@ -64,7 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildCategories(),
               const TopProvidersWidget(),
               _buildProviderList(), // Renamed
-              const PlatformRatingWidget(),
+              if (_showRatingWidget)
+                PlatformRatingWidget(onClose: () => setState(() => _showRatingWidget = false)),
               const SizedBox(height: 20),
             ],
           ),

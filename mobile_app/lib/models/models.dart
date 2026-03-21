@@ -532,3 +532,32 @@ class CustomerStats {
     );
   }
 }
+
+class PaymentTransaction {
+  final int id;
+  final String txRef;
+  final double amount;
+  final String status;
+  final String method;
+  final DateTime createdAt;
+
+  PaymentTransaction({
+    required this.id,
+    required this.txRef,
+    required this.amount,
+    required this.status,
+    required this.method,
+    required this.createdAt,
+  });
+
+  factory PaymentTransaction.fromJson(Map<String, dynamic> json) {
+    return PaymentTransaction(
+      id: int.tryParse(json['id'].toString()) ?? 0,
+      txRef: json['tx_ref']?.toString() ?? '',
+      amount: double.tryParse(json['amount'].toString()) ?? 0.0,
+      status: json['status']?.toString() ?? 'unknown',
+      method: json['payment_method']?.toString() ?? 'chapa',
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'].toString()) : DateTime.now(),
+    );
+  }
+}

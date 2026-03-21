@@ -73,16 +73,32 @@ exports.updateMyProfile = async (req, res) => {
         const userId = req.user.id;
         const { bio, name, phone } = req.body;
 
+        let profileImageUrl = null;
+        if (req.file) {
+            const upload = require('../utils/supabaseHelper').uploadFile;
+            profileImageUrl = await upload(
+                req.file.buffer,
+                req.file.mimetype,
+                'profile-images'
+            );
+        }
+
         // Start a transaction
         const client = await pool.connect();
         try {
             await client.query('BEGIN');
 
-            // Update users table (name and phone)
-            await client.query(
-                "UPDATE users SET name = $1, phone = $2 WHERE id = $3",
-                [name, phone, userId]
-            );
+            if (profileImageUrl) {
+                await client.query(
+                    "UPDATE users SET name = $1, phone = $2, profile_image_url = $3 WHERE id = $4",
+                    [name, phone, profileImageUrl, userId]
+                );
+            } else {
+                await client.query(
+                    "UPDATE users SET name = $1, phone = $2 WHERE id = $3",
+                    [name, phone, userId]
+                );
+            }
 
             // Upsert provider_profiles table (bio)
             const updatedProfile = await client.query(
@@ -93,11 +109,18 @@ exports.updateMyProfile = async (req, res) => {
                  RETURNING *`,
                 [userId, bio]
             );
+            
+            // Fetch the fully updated user object
+            const updatedUserRes = await client.query(
+                "SELECT id, name, email, role, status, profile_image_url, phone FROM users WHERE id = $1",
+                [userId]
+            );
 
             await client.query('COMMIT');
 
             res.json({
                 message: "Profile updated successfully",
+                user: updatedUserRes.rows[0],
                 profile: updatedProfile.rows[0]
             });
         } catch (error) {

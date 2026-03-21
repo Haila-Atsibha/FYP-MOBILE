@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
@@ -104,7 +105,9 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                             radius: 60,
                             backgroundColor: Colors.grey.shade200,
                             backgroundImage: _selectedImage != null
-                                ? FileImage(File(_selectedImage!.path))
+                                ? (kIsWeb
+                                    ? NetworkImage(_selectedImage!.path)
+                                    : FileImage(File(_selectedImage!.path))) as ImageProvider
                                 : (user?.profileImageUrl != null
                                     ? NetworkImage(user!.profileImageUrl!)
                                     : null) as ImageProvider?,

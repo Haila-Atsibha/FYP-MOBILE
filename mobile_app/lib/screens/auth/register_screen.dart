@@ -42,13 +42,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _fetchCategories();
   }
 
+  String? _categoryError;
+
   Future<void> _fetchCategories() async {
-    setState(() => _isLoadingCategories = true);
+    setState(() {
+      _isLoadingCategories = true;
+      _categoryError = null;
+    });
     try {
       final categories = await context.read<ApiService>().getCategories();
       if (mounted) setState(() => _categories = categories);
     } catch (e) {
       debugPrint('Failed to load categories: $e');
+      if (mounted) setState(() => _categoryError = e.toString());
     } finally {
       if (mounted) setState(() => _isLoadingCategories = false);
     }
@@ -363,9 +369,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 8),
                   _isLoadingCategories 
                       ? const Center(child: CircularProgressIndicator())
-                      : _categories.isEmpty
-                          ? const Text('No categories available.')
-                          : Wrap(
+                      : _categoryError != null
+                          ? Text('Error loading categories: \$_categoryError', style: const TextStyle(color: Colors.red))
+                          : _categories.isEmpty
+                              ? const Text('No categories available.')
+                              : Wrap(
                               spacing: 8,
                               runSpacing: 8,
                               children: _categories.map((cat) {

@@ -11,6 +11,8 @@ const {
     getProviderStats,
     getMyCategories
 } = require('../controllers/providerController');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Protected provider routes (Move static routes above dynamic ones)
 router.get(
@@ -55,6 +57,7 @@ router.put(
     '/profile',
     protect,
     authorizeRoles('provider'),
+    upload.single('profileImage'),
     updateMyProfile
 );
 

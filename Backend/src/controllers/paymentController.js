@@ -39,7 +39,7 @@ exports.initializePayment = async (req, res) => {
                 last_name: lastName,
                 tx_ref: tx_ref,
                 callback_url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payments/verify-payment/${tx_ref}`,
-                return_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/provider/subscription-success?tx_ref=${tx_ref}`,
+                return_url: `${process.env.BACKEND_URL || 'http://localhost:5000'}/api/payments/payment-success`,
                 "customization[title]": "QuickServe Subscription",
                 "customization[description]": "Monthly provider subscription fee"
             },
@@ -77,17 +77,30 @@ exports.verifyPayment = async (req, res) => {
         const logPath = path.join(process.cwd(), 'notif_error.log');
         fs.appendFileSync(logPath, `[${new Date().toISOString()}] Starting verification for tx_ref: ${tx_ref}\n`);
 
-        // 1. Call Chapa to verify
-        const chapaResponse = await axios.get(
-            `https://api.chapa.co/v1/transaction/verify/${tx_ref}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${CHAPA_SECRET_KEY}`
+        // 1. Call Chapa to verify (with retry for async gateway delays)
+        let chapaResponse;
+        let isSuccess = false;
+        
+        for (let i = 0; i < 4; i++) {
+            chapaResponse = await axios.get(
+                `https://api.chapa.co/v1/transaction/verify/${tx_ref}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${CHAPA_SECRET_KEY}`
+                    }
                 }
-            }
-        );
+            );
 
-        if (chapaResponse.data.status === 'success' && chapaResponse.data.data.status === 'success') {
+            if (chapaResponse.data.status === 'success' && chapaResponse.data.data.status === 'success') {
+                isSuccess = true;
+                break;
+            }
+            
+            // Wait 2 seconds before retrying
+            await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+
+        if (isSuccess) {
             const data = chapaResponse.data.data;
 
             // Extract provider_id from tx_ref or query it
@@ -176,6 +189,7 @@ exports.verifyPayment = async (req, res) => {
                 client.release();
             }
         } else {
+            fs.appendFileSync(logPath, `[${new Date().toISOString()}] Verification Failed for ${tx_ref}. Chapa responded: ${JSON.stringify(chapaResponse.data)}\n`);
             res.status(400).json({ message: "Payment verification failed", detail: chapaResponse.data });
         }
 
@@ -191,5 +205,30 @@ exports.verifyPayment = async (req, res) => {
             message: "Server error during payment verification",
             error: error.response?.data || error.message
         });
+    }
+};
+
+exports.getPaymentHistory = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        
+        // get provider id
+        const profileQuery = await pool.query(
+            "SELECT id FROM provider_profiles WHERE user_id = $1",
+            [userId]
+        );
+        if (profileQuery.rows.length === 0) {
+            return res.json([]);
+        }
+        const providerId = profileQuery.rows[0].id;
+
+        const payments = await pool.query(
+            "SELECT id, tx_ref, amount, status, payment_method, created_at FROM payments WHERE provider_id = $1 ORDER BY created_at DESC",
+            [providerId]
+        );
+
+        res.json(payments.rows);
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
