@@ -8,9 +8,28 @@ const { v4: uuidv4 } = require('uuid');
  * @param {string} folder - optional folder path inside the bucket
  * @returns {string} publicUrl
  */
-async function uploadFile(buffer, mimeType, folder = '') {
+async function uploadFile(buffer, mimeType, folder = '', originalname = '') {
     const bucketName = process.env.SUPABASE_BUCKET || 'QuickServe_files';
-    const filename = folder ? `${folder}/${uuidv4()}` : uuidv4();
+    const path = require('path');
+    
+    // Extract extension from originalname if provided, or default to empty
+    let ext = '';
+    if (originalname) {
+        ext = path.extname(originalname);
+    } else {
+        // Fallback: try to derive from mimeType if possible
+        const mimeMap = {
+            'image/jpeg': '.jpg',
+            'image/png': '.png',
+            'image/gif': '.gif',
+            'application/pdf': '.pdf',
+            'application/msword': '.doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx'
+        };
+        ext = mimeMap[mimeType] || '';
+    }
+
+    const filename = folder ? `${folder}/${uuidv4()}${ext}` : `${uuidv4()}${ext}`;
 
     const { data, error } = await supabase.storage
         .from(bucketName)
@@ -35,9 +54,10 @@ async function uploadFile(buffer, mimeType, folder = '') {
  * Generates a signed URL for a file path or an existing public URL.
  * @param {string} pathOrUrl 
  * @param {number} expiresIn - seconds
+ * @param {string} filename - optional filename for Content-Disposition
  * @returns {string} signedUrl
  */
-async function getSignedUrl(pathOrUrl, expiresIn = 3600) {
+async function getSignedUrl(pathOrUrl, expiresIn = 3600, filename = null) {
     if (!pathOrUrl || typeof pathOrUrl !== 'string') return null;
 
     const bucketName = process.env.SUPABASE_BUCKET || 'QuickServe_files';
@@ -49,20 +69,23 @@ async function getSignedUrl(pathOrUrl, expiresIn = 3600) {
         if (parts.length > 1) {
             path = parts[1];
         } else {
-            // If it's an http URL but doesn't contain the bucket name,
-            // it might be an already signed URL or a public URL from another bucket/source.
-            // In this case, we can return it as is, assuming it's valid.
+            // Already signed or public URL from another source
             return pathOrUrl;
         }
     }
 
+    const options = {};
+    if (filename) {
+        options.download = filename;
+    }
+
     const { data, error } = await supabase.storage
         .from(bucketName)
-        .createSignedUrl(path, expiresIn);
+        .createSignedUrl(path, expiresIn, options);
 
     if (error) {
         console.error("Error creating signed URL:", error);
-        return pathOrUrl; // fallback to original if signing fails
+        return pathOrUrl;
     }
 
     return data.signedUrl;

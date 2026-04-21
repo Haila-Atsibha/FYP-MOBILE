@@ -59,13 +59,13 @@ class Service {
 
   factory Service.fromJson(Map<String, dynamic> json) {
     return Service(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      price: double.parse(json['price'].toString()),
-      categoryId: json['category_id'],
-      categoryName: json['category_name'],
-      providerName: json['provider_name'],
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      title: json['title']?.toString() ?? 'Untitled Service',
+      description: json['description']?.toString(),
+      price: double.tryParse(json['price']?.toString() ?? '') ?? 0.0,
+      categoryId: json['category_id'] is int ? json['category_id'] : int.tryParse(json['category_id']?.toString() ?? '') ?? 0,
+      categoryName: json['category_name']?.toString(),
+      providerName: json['provider_name']?.toString(),
     );
   }
 }
@@ -93,6 +93,7 @@ class Booking {
   final String status;
   final DateTime createdAt;
   final Service? service;
+  final String? customerName;
   final String? title;
   final String? providerName;
   final double? totalPrice;
@@ -103,6 +104,7 @@ class Booking {
     required this.id,
     required this.serviceId,
     required this.customerId,
+    this.customerName,
     required this.status,
     required this.createdAt,
     this.service,
@@ -114,18 +116,31 @@ class Booking {
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
+    // Handle cases where 'service' might be a string (title) or a map
+    Service? serviceData;
+    String? bookingTitle;
+    
+    if (json['service'] != null) {
+      if (json['service'] is Map<String, dynamic>) {
+        serviceData = Service.fromJson(json['service']);
+      } else if (json['service'] is String) {
+        bookingTitle = json['service'];
+      }
+    }
+
     return Booking(
-      id: json['id'],
-      serviceId: json['service_id'],
-      customerId: json['customer_id'].toString(),
-      status: json['status'],
-      createdAt: DateTime.parse(json['created_at']),
-      service: json['service'] != null ? Service.fromJson(json['service']) : null,
-      title: json['title'],
-      providerName: json['provider_name'],
-      totalPrice: json['total_price'] != null ? double.parse(json['total_price'].toString()) : null,
-      description: json['description'],
-      isReviewed: json['is_reviewed'] ?? false,
+      id: json['id'] is int ? json['id'] : int.tryParse(json['id']?.toString() ?? '') ?? 0,
+      serviceId: json['service_id'] is int ? json['service_id'] : int.tryParse(json['service_id']?.toString() ?? '') ?? 0,
+      customerId: (json['customer_id'] ?? '').toString(),
+      customerName: json['customer_name'] ?? json['customer']?.toString() ?? 'Unknown Customer',
+      status: json['status']?.toString() ?? 'pending',
+      createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now() : DateTime.now(),
+      service: serviceData,
+      title: bookingTitle ?? json['title']?.toString(),
+      providerName: json['provider_name'] ?? json['provider']?.toString(),
+      totalPrice: double.tryParse((json['total_price'] ?? json['price'] ?? '0').toString()),
+      description: json['description']?.toString(),
+      isReviewed: json['is_reviewed'] == true || json['is_reviewed'] == 1,
     );
   }
 }

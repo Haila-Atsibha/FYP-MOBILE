@@ -114,31 +114,58 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.5,
       children: [
-        _buildStatCard('Total Users', stats.totalUsers.toString(), Icons.people, Colors.blue),
-        _buildStatCard('Total Bookings', stats.totalBookings.toString(), Icons.book, Colors.orange),
-        _buildStatCard('Active Jobs', stats.activeBookings.toString(), Icons.hourglass_top, Colors.indigo),
-        _buildStatCard('Avg Rating', stats.avgRating, Icons.star, Colors.amber),
+        _buildStatCard(
+          'Total Users',
+          stats.totalUsers.toString(),
+          Icons.people,
+          Colors.blue,
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminUsersScreen())),
+        ),
+        _buildStatCard(
+          'Total Bookings',
+          stats.totalBookings.toString(),
+          Icons.book,
+          Colors.orange,
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminBookingsScreen())),
+        ),
+        _buildStatCard(
+          'Active Jobs',
+          stats.activeBookings.toString(),
+          Icons.hourglass_top,
+          Colors.indigo,
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminBookingsScreen())),
+        ),
+        _buildStatCard(
+          'Avg Rating',
+          stats.avgRating,
+          Icons.star,
+          Colors.amber,
+        ),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(String label, String value, IconData icon, Color color, {VoidCallback? onTap}) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: Colors.grey.shade200),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(height: 8),
-            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-          ],
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: color),
+              const SizedBox(height: 8),
+              Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+            ],
+          ),
         ),
       ),
     );

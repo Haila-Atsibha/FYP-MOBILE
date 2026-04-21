@@ -162,203 +162,116 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.flash_on, color: AppTheme.primaryColor, size: 28),
-                    const SizedBox(width: 8),
-                    Text(
-                      'QuickServe Services',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.primaryColor,
-                          ),
-                    ),
-                  ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Header Section
+            Container(
+              height: 200,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [AppTheme.primaryColor, Color(0xFF1E293B)],
                 ),
-                const SizedBox(height: 32),
-                Text(
-                  'Register',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(40),
+                ),
+              ),
+              child: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
                       ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Create Account',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Join QuickServe and start your journey',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
-                ),
-                const SizedBox(height: 32),
-                
-                // Form Fields
-                _buildTextField(
-                  controller: _nameController,
-                  label: 'Full Name',
-                  hint: 'John Doe',
-                  validator: (v) => v!.isEmpty ? 'Please enter your full name' : null,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _emailController,
-                  label: 'Email Address',
-                  hint: 'john@example.com',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) => !v!.contains('@') ? 'Please enter a valid email' : null,
-                ),
-                const SizedBox(height: 16),
-                _buildTextField(
-                  controller: _passwordController,
-                  label: 'Password',
-                  hint: '••••••••',
-                  obscureText: _obscurePassword,
-                  suffixIcon: IconButton(
-                    icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                  ),
-                  validator: (v) => v!.length < 6 ? 'Password must be at least 6 characters' : null,
-                ),
-                const SizedBox(height: 16),
-
-                // Role Selection
-                const Text('Role', style: TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: _selectedRole,
-                      isExpanded: true,
-                      items: const [
-                        DropdownMenuItem(value: 'customer', child: Text('Customer')),
-                        DropdownMenuItem(value: 'provider', child: Text('Provider/Professional')),
-                      ],
-                      onChanged: (val) => setState(() => _selectedRole = val!),
-                    ),
-                  ),
-                ),
-                
-                const SizedBox(height: 32),
-                const Text('Verification Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 16),
-
-                // File Uploads
-                _buildFileUploadRow(
-                  label: 'Profile Image',
-                  file: _profileImage,
-                  onTap: () => _pickImage(ImageSource.gallery, 'profile'),
-                  icon: Icons.image_outlined,
-                ),
-                const SizedBox(height: 16),
-                _buildFileUploadRow(
-                  label: 'National ID',
-                  file: _nationalId,
-                  onTap: _pickDocument,
-                  icon: Icons.badge_outlined,
-                ),
-                const SizedBox(height: 16),
-                
-                // Selfie Camera
-                const Text('Selfie Verification', style: TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                InkWell(
-                  onTap: () => _pickImage(ImageSource.camera, 'selfie'),
-                  borderRadius: BorderRadius.circular(12),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    decoration: BoxDecoration(
-                      color: AppTheme.primaryColor.withOpacity(0.05),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppTheme.primaryColor.withOpacity(0.3), width: 1.5, style: BorderStyle.solid),
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(Icons.camera_alt, color: AppTheme.primaryColor, size: 32),
-                        const SizedBox(height: 8),
-                        Text(
-                          _verificationSelfie == null ? 'Start Camera\nCapture Photo' : 'Selfie Captured',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.w600),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                if (_selectedRole == 'provider') ...[
-                  const SizedBox(height: 24),
-                  const Text('Educational Documents', style: TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Upload certifications, degrees, or other relevant files (Multiple allowed)',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                  ),
-                  const SizedBox(height: 8),
-                  InkWell(
-                    onTap: () => _pickDocument(multiple: true),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey.shade300),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.file_copy_outlined, color: Colors.grey.shade600),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              _educationalDocuments.isEmpty 
-                                  ? 'No file chosen' 
-                                  : '${_educationalDocuments.length} file(s) chosen',
-                              style: TextStyle(
-                                  color: _educationalDocuments.isEmpty ? Colors.grey.shade500 : Colors.black87),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Create Account',
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
-                          ),
-                          if (_educationalDocuments.isNotEmpty)
-                            const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Join the QuickServe professional network',
+                        style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Basic Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _nameController,
+                      label: 'Full Name',
+                      hint: 'John Doe',
+                      icon: Icons.person_outline,
+                      validator: (v) => v!.isEmpty ? 'Please enter your full name' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _emailController,
+                      label: 'Email Address',
+                      hint: 'john@example.com',
+                      icon: Icons.email_outlined,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (v) => !v!.contains('@') ? 'Please enter a valid email' : null,
+                    ),
+                    const SizedBox(height: 16),
+                    _buildTextField(
+                      controller: _passwordController,
+                      label: 'Password',
+                      hint: '••••••••',
+                      icon: Icons.lock_outline,
+                      obscureText: _obscurePassword,
+                      suffixIcon: IconButton(
+                        icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
+                        onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      ),
+                      validator: (v) => v!.length < 6 ? 'Password must be at least 6 characters' : null,
+                    ),
+                    const SizedBox(height: 24),
+                    
+                    const Text('Select Role', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedRole,
+                          isExpanded: true,
+                          items: const [
+                            DropdownMenuItem(value: 'customer', child: Text('I am a Customer')),
+                            DropdownMenuItem(value: 'provider', child: Text('I am a Provider')),
+                          ],
+                          onChanged: (val) => setState(() => _selectedRole = val!),
+                        ),
                       ),
                     ),
-                  ),
-                  if (_educationalDocuments.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: _educationalDocuments.map((doc) => Chip(
-                        label: Text(doc.name, style: const TextStyle(fontSize: 12)),
-                        onDeleted: () => setState(() => _educationalDocuments.remove(doc)),
-                        deleteIcon: const Icon(Icons.close, size: 16),
-                      )).toList(),
-                    ),
-                  ],
 
+<<<<<<< HEAD
                   const SizedBox(height: 24),
                   const Text('Service Categories', style: TextStyle(fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
@@ -374,6 +287,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           : _categories.isEmpty
                               ? const Text('No categories available.')
                               : Wrap(
+=======
+                    if (_selectedRole == 'provider') ...[
+                      const SizedBox(height: 24),
+                      const Text('Service Categories', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
+                      const SizedBox(height: 12),
+                      _isLoadingCategories 
+                          ? const Center(child: CircularProgressIndicator())
+                          : Wrap(
+>>>>>>> b5fc919 (updated some features in my websites)
                               spacing: 8,
                               runSpacing: 8,
                               children: _categories.map((cat) {
@@ -383,46 +305,96 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   selected: isSelected,
                                   onSelected: (selected) {
                                     setState(() {
-                                      if (selected) {
-                                        _selectedCategories.add(cat.id);
-                                      } else {
-                                        _selectedCategories.remove(cat.id);
-                                      }
+                                      if (selected) _selectedCategories.add(cat.id);
+                                      else _selectedCategories.remove(cat.id);
                                     });
                                   },
-                                  selectedColor: AppTheme.primaryColor.withOpacity(0.2),
+                                  selectedColor: AppTheme.accentColor.withOpacity(0.2),
                                   checkmarkColor: AppTheme.primaryColor,
                                 );
                               }).toList(),
                             ),
-                ],
+                    ],
 
-                const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _handleRegister,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: AppTheme.primaryColor,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    const SizedBox(height: 32),
+                    const Text('Verification Documents', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+                    const SizedBox(height: 16),
+                    _buildFileUploadRow(
+                      label: 'Profile Photo',
+                      file: _profileImage,
+                      onTap: () => _pickImage(ImageSource.gallery, 'profile'),
+                      icon: Icons.camera_alt_outlined,
                     ),
-                    child: _isLoading
-                        ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                        : const Text('Complete Registration', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  ),
+                    const SizedBox(height: 16),
+                    _buildFileUploadRow(
+                      label: 'National ID Card',
+                      file: _nationalId,
+                      onTap: _pickDocument,
+                      icon: Icons.badge_outlined,
+                    ),
+                    const SizedBox(height: 16),
+                    
+                    const Text('Face Verification', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
+                    const SizedBox(height: 8),
+                    InkWell(
+                      onTap: () => _pickImage(ImageSource.camera, 'selfie'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: AppTheme.accentColor.withOpacity(0.05),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppTheme.accentColor.withOpacity(0.2), width: 1.5, style: BorderStyle.solid),
+                        ),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.face, size: 40, color: AppTheme.accentColor),
+                            const SizedBox(height: 8),
+                            Text(
+                              _verificationSelfie == null ? 'Capture Verification Selfie' : 'Selfie Captured Successfully',
+                              style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    if (_selectedRole == 'provider') ...[
+                      const SizedBox(height: 24),
+                      _buildFileUploadRow(
+                        label: 'Educational / Certifications',
+                        file: _educationalDocuments.isEmpty ? null : _educationalDocuments.first,
+                        onTap: () => _pickDocument(multiple: true),
+                        icon: Icons.school_outlined,
+                        trailing: _educationalDocuments.length > 1 ? Text('+${_educationalDocuments.length - 1} more') : null,
+                      ),
+                    ],
+
+                    const SizedBox(height: 40),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _handleRegister,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        padding: const EdgeInsets.symmetric(vertical: 18),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text('Complete Registration', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    const SizedBox(height: 16),
+                    Center(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Already have an account? Login here', style: TextStyle(fontWeight: FontWeight.w600)),
+                      ),
+                    ),
+                    const SizedBox(height: 48),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                Center(
-                  child: TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Already have an account? Login here', style: TextStyle(fontWeight: FontWeight.w600)),
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -432,6 +404,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required TextEditingController controller,
     required String label,
     required String hint,
+    required IconData icon,
     bool obscureText = false,
     TextInputType? keyboardType,
     Widget? suffixIcon,
@@ -440,7 +413,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
@@ -449,21 +422,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           validator: validator,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: TextStyle(color: Colors.grey.shade400),
-            filled: true,
-            fillColor: Colors.grey.shade100,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: AppTheme.primaryColor),
-            ),
+            prefixIcon: Icon(icon, color: AppTheme.primaryColor.withOpacity(0.5)),
             suffixIcon: suffixIcon,
           ),
         ),
@@ -476,11 +435,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
     required dynamic file,
     required VoidCallback onTap,
     required IconData icon,
+    Widget? trailing,
   }) {
+    final bool uploaded = file != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
         const SizedBox(height: 8),
         InkWell(
           onTap: onTap,
@@ -488,23 +449,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: uploaded ? Colors.green.withOpacity(0.05) : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300),
+              border: Border.all(color: uploaded ? Colors.green.withOpacity(0.2) : Colors.grey.shade200),
             ),
             child: Row(
               children: [
-                Icon(icon, color: Colors.grey.shade600),
+                Icon(icon, color: uploaded ? Colors.green : AppTheme.primaryColor.withOpacity(0.5)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    file != null ? file.name : 'No file chosen',
-                    style: TextStyle(color: file != null ? Colors.black87 : Colors.grey.shade500),
+                    uploaded ? (file is XFile ? file.name : file.name) : 'No file chosen',
+                    style: TextStyle(color: uploaded ? Colors.black87 : Colors.grey, fontSize: 13),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (file != null) const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                if (trailing != null) trailing,
+                if (uploaded) const Icon(Icons.check_circle, color: Colors.green, size: 20),
               ],
             ),
           ),

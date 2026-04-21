@@ -55,7 +55,8 @@ exports.updateCustomerProfile = async (req, res) => {
             profileImageUrl = await upload(
                 req.file.buffer,
                 req.file.mimetype,
-                'profile-images'
+                'profile-images',
+                req.file.originalname
             );
         }
 

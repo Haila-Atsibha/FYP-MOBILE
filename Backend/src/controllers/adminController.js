@@ -17,14 +17,16 @@ exports.getPendingUsers = async (req, res) => {
 
             const educational_documents = await Promise.all(docsResult.rows.map(async (doc) => ({
                 name: doc.document_name,
-                url: await getSignedUrl(doc.document_url)
+                url: await getSignedUrl(doc.document_url, 3600, doc.document_name)
             })));
+
+            const getExt = (path) => (path && path.includes('.')) ? path.split('.').pop() : 'jpg';
 
             return {
                 ...user,
-                profile_image_url: await getSignedUrl(user.profile_image_url),
-                national_id_url: await getSignedUrl(user.national_id_url),
-                verification_selfie_url: await getSignedUrl(user.verification_selfie_url),
+                profile_image_url: await getSignedUrl(user.profile_image_url, 3600, `profile_${user.id}.${getExt(user.profile_image_url)}`),
+                national_id_url: await getSignedUrl(user.national_id_url, 3600, `national_id_${user.id}.${getExt(user.national_id_url)}`),
+                verification_selfie_url: await getSignedUrl(user.verification_selfie_url, 3600, `selfie_${user.id}.${getExt(user.verification_selfie_url)}`),
                 educational_documents
             };
         }));
@@ -309,15 +311,17 @@ exports.getUsers = async (req, res) => {
 
                     educational_documents = await Promise.all(docsResult.rows.map(async (doc) => ({
                         name: doc.document_name,
-                        url: await getSignedUrl(doc.document_url)
+                        url: await getSignedUrl(doc.document_url, 3600, doc.document_name)
                     })));
                 }
 
+                const getExt = (path) => (path && path.includes('.')) ? path.split('.').pop() : 'jpg';
+
                 return {
                     ...user,
-                    profile_image_url: await getSignedUrl(user.profile_image_url),
-                    national_id_url: await getSignedUrl(user.national_id_url),
-                    verification_selfie_url: await getSignedUrl(user.verification_selfie_url),
+                    profile_image_url: await getSignedUrl(user.profile_image_url, 3600, `profile_${user.id}.${getExt(user.profile_image_url)}`),
+                    national_id_url: await getSignedUrl(user.national_id_url, 3600, `national_id_${user.id}.${getExt(user.national_id_url)}`),
+                    verification_selfie_url: await getSignedUrl(user.verification_selfie_url, 3600, `selfie_${user.id}.${getExt(user.verification_selfie_url)}`),
                     educational_documents
                 };
             } catch (innerError) {
