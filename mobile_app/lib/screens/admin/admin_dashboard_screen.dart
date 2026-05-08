@@ -114,16 +114,33 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.5,
       children: [
-        _buildStatCard('Total Users', stats.totalUsers.toString(), Icons.people, Colors.blue, onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminUsersScreen()));
-        }),
-        _buildStatCard('Total Bookings', stats.totalBookings.toString(), Icons.book, Colors.orange, onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminBookingsScreen()));
-        }),
-        _buildStatCard('Active Jobs', stats.activeBookings.toString(), Icons.hourglass_top, Colors.indigo, onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminBookingsScreen()));
-        }),
-        _buildStatCard('Avg Rating', stats.avgRating, Icons.star, Colors.amber),
+        _buildStatCard(
+          'Total Users',
+          stats.totalUsers.toString(),
+          Icons.people,
+          Colors.blue,
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminUsersScreen())),
+        ),
+        _buildStatCard(
+          'Total Bookings',
+          stats.totalBookings.toString(),
+          Icons.book,
+          Colors.orange,
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminBookingsScreen())),
+        ),
+        _buildStatCard(
+          'Active Jobs',
+          stats.activeBookings.toString(),
+          Icons.hourglass_top,
+          Colors.indigo,
+          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminBookingsScreen())),
+        ),
+        _buildStatCard(
+          'Avg Rating',
+          stats.avgRating,
+          Icons.star,
+          Colors.amber,
+        ),
       ],
     );
   }
@@ -135,9 +152,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: Colors.grey.shade200),
       ),
-      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(

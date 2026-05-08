@@ -4,6 +4,7 @@ import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'full_screen_image_viewer.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -28,13 +29,25 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
   }
 
   Future<void> _openUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch $url';
+      }
+    } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not open document')),
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            action: SnackBarAction(
+              label: 'Copy URL',
+              onPressed: () {
+                // You would typically use Clipboard.setData here
+              },
+            ),
+          ),
         );
       }
     }
@@ -48,67 +61,175 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.8,
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
         ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                  child: const Icon(Icons.folder_shared, color: AppTheme.primaryColor),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.name,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const Text('User Documents', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Flexible(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (user.nationalIdUrl != null)
+                      _buildDocItem(
+                        'National ID',
+                        user.nationalIdUrl!,
+                        Icons.badge,
+                        Colors.blue,
+                      ),
+                    if (user.verificationSelfieUrl != null)
+                      _buildDocItem(
+                        'Verification Selfie',
+                        user.verificationSelfieUrl!,
+                        Icons.face,
+                        Colors.green,
+                      ),
+                    if (user.role == 'provider' && user.educationalDocuments != null && user.educationalDocuments!.isNotEmpty) ...[
+                      const Divider(height: 32),
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Educational Documents',
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ...user.educationalDocuments!.map((doc) => _buildDocItem(
+                        doc['name'] ?? 'Document',
+                        doc['url'],
+                        Icons.description,
+                        Colors.orange,
+                      )),
+                    ],
+                    if (user.nationalIdUrl == null && 
+                        user.verificationSelfieUrl == null && 
+                        (user.role != 'provider' || user.educationalDocuments == null || user.educationalDocuments!.isEmpty))
+                      const Padding(
+                        padding: EdgeInsets.all(40),
+                        child: Center(
+                          child: Column(
+                            children: [
+                              Icon(Icons.no_accounts_outlined, size: 48, color: Colors.grey),
+                              SizedBox(height: 16),
+                              Text('No documents uploaded for this user.', style: TextStyle(color: Colors.grey)),
+                            ],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  bool _isPdf(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return false;
+    return uri.path.toLowerCase().endsWith('.pdf') || url.toLowerCase().contains('.pdf?');
+  }
+
+  Widget _buildDocItem(String title, String url, IconData icon, Color color) {
+    final isPdfFile = _isPdf(url);
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          children: [
+            ListTile(
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (isPdfFile ? Colors.red : color).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(isPdfFile ? Icons.picture_as_pdf : icon, color: isPdfFile ? Colors.red : color),
+              ),
+              title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+              subtitle: Text(
+                url.split('/').last.split('?').first,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      'Documents: ${user.name}',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.visibility_outlined, size: 18),
+                      label: Text(isPdfFile ? 'Open PDF' : 'View In-App'),
+                      onPressed: () {
+                        if (isPdfFile) {
+                          _openUrl(url);
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => FullScreenImageViewer(imageUrl: url, tag: url),
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppTheme.primaryColor,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.download_outlined, size: 18),
+                      label: const Text('Download'),
+                      onPressed: () => _openUrl(url),
+                    ),
                   ),
                 ],
               ),
-              const Divider(),
-              if (user.nationalIdUrl != null)
-                ListTile(
-                  leading: const Icon(Icons.badge, color: Colors.blue),
-                  title: const Text('National ID'),
-                  trailing: const Icon(Icons.open_in_new),
-                  onTap: () => _openUrl(user.nationalIdUrl!),
-                ),
-              if (user.verificationSelfieUrl != null)
-                ListTile(
-                  leading: const Icon(Icons.face, color: Colors.green),
-                  title: const Text('Verification Selfie'),
-                  trailing: const Icon(Icons.open_in_new),
-                  onTap: () => _openUrl(user.verificationSelfieUrl!),
-                ),
-              if (user.role == 'provider' && user.educationalDocuments != null && user.educationalDocuments!.isNotEmpty) ...[
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Text('Educational Documents', style: TextStyle(fontWeight: FontWeight.bold)),
-                ),
-                ...user.educationalDocuments!.map((doc) => ListTile(
-                  leading: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                  title: Text(doc['name'] ?? 'Document'),
-                  trailing: const Icon(Icons.open_in_new),
-                  onTap: () => _openUrl(doc['url']),
-                )),
-              ],
-              if (user.nationalIdUrl == null && 
-                  user.verificationSelfieUrl == null && 
-                  (user.role != 'provider' || user.educationalDocuments == null || user.educationalDocuments!.isEmpty))
-                const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Center(child: Text('No documents uploaded.')),
-                ),
-              const SizedBox(height: 20),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

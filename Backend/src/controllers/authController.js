@@ -31,17 +31,20 @@ exports.registerUser = async (req, res) => {
         const profileImageUrl = await upload(
             req.files.profileImage[0].buffer,
             req.files.profileImage[0].mimetype,
-            'profile-images'
+            'profile-images',
+            req.files.profileImage[0].originalname
         );
         const nationalIdUrl = await upload(
             req.files.nationalId[0].buffer,
             req.files.nationalId[0].mimetype,
-            'national-ids'
+            'national-ids',
+            req.files.nationalId[0].originalname
         );
         const verificationSelfieUrl = await upload(
             req.files.verificationSelfie[0].buffer,
             req.files.verificationSelfie[0].mimetype,
-            'selfies'
+            'selfies',
+            req.files.verificationSelfie[0].originalname
         );
 
         const newUser = await pool.query(
@@ -120,7 +123,8 @@ exports.registerUser = async (req, res) => {
                         const docUrl = await upload(
                             file.buffer,
                             file.mimetype,
-                            'educational-docs'
+                            'educational-docs',
+                            file.originalname
                         );
                         await pool.query(
                             "INSERT INTO provider_documents (provider_id, document_url, document_name) VALUES ($1, $2, $3)",

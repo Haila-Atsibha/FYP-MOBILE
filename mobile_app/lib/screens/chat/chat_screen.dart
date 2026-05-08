@@ -52,7 +52,10 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send message: $e')),
+        const SnackBar(
+          content: Text('Your message couldn\'t be sent. Please check your connection.'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
@@ -81,7 +84,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   return const Center(child: CircularProgressIndicator());
                 }
                 if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
+                  return const SizedBox.shrink();
                 }
                 final messages = snapshot.data ?? [];
 
@@ -139,6 +142,10 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessageInput() {
+    final bool isAccepted = widget.conversation.bookingStatus.toLowerCase() == 'accepted' || 
+                           widget.conversation.bookingStatus.toLowerCase() == 'active' ||
+                           widget.conversation.bookingStatus.toLowerCase() == 'completed';
+
     return Container(
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
@@ -152,23 +159,74 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
       child: SafeArea(
-        child: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: TextField(
-                controller: _messageController,
-                decoration: const InputDecoration(
-                  hintText: 'Type a message...',
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
+            if (widget.conversation.bookingStatus.toLowerCase() == 'pending')
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.amber.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.amber.shade200),
                 ),
-                maxLines: null,
-                textCapitalization: TextCapitalization.sentences,
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.amber.shade800, size: 20),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        'Messaging will be enabled once the provider accepts your request.',
+                        style: TextStyle(color: Color(0xFF92400E), fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else if (!isAccepted)
+               Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red.shade800, size: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Messaging is closed for this ${widget.conversation.bookingStatus.toLowerCase()} booking.',
+                        style: TextStyle(color: Colors.red.shade900, fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.send, color: AppTheme.primaryColor),
-              onPressed: _sendMessage,
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _messageController,
+                    enabled: isAccepted,
+                    decoration: InputDecoration(
+                      hintText: isAccepted ? 'Type a message...' : 'Waiting for provider acceptance...',
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    maxLines: null,
+                    textCapitalization: TextCapitalization.sentences,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.send, color: isAccepted ? AppTheme.primaryColor : Colors.grey),
+                  onPressed: isAccepted ? _sendMessage : null,
+                ),
+              ],
             ),
           ],
         ),

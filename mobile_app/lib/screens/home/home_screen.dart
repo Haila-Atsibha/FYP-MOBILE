@@ -25,7 +25,15 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<TopProvider>> _providersFuture;
   late Future<List<Category>> _categoriesFuture;
   int? _selectedCategoryId;
+<<<<<<< HEAD
   bool _showRatingWidget = true;
+=======
+  
+  final TextEditingController _searchController = TextEditingController();
+  List<Category> _allCategories = [];
+  List<Category> _filteredCategories = [];
+  bool _isSearching = false;
+>>>>>>> b5fc919 (updated some features in my websites)
 
   @override
   void initState() {
@@ -36,7 +44,22 @@ class _HomeScreenState extends State<HomeScreen> {
   void _loadData() {
     final api = context.read<ApiService>();
     _providersFuture = api.getProviders(categoryId: _selectedCategoryId); // Uses updated getProviders
-    _categoriesFuture = api.getCategories();
+    _categoriesFuture = api.getCategories().then((cats) {
+      setState(() {
+        _allCategories = cats;
+        _filteredCategories = cats;
+      });
+      return cats;
+    });
+  }
+
+  void _filterCategories(String query) {
+    setState(() {
+      _isSearching = query.isNotEmpty;
+      _filteredCategories = _allCategories
+          .where((cat) => cat.name.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
   }
 
   @override
@@ -52,6 +75,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to support chat or conversation list
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ConversationListScreen()),
+          );
+        },
+        backgroundColor: AppTheme.accentColor,
+        child: const Icon(Icons.message, color: Colors.white),
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           setState(() => _loadData());
@@ -62,12 +95,24 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSearchBar(),
+<<<<<<< HEAD
               _buildCategories(),
               const TopProvidersWidget(),
               _buildProviderList(), // Renamed
               if (_showRatingWidget)
                 PlatformRatingWidget(onClose: () => setState(() => _showRatingWidget = false)),
               const SizedBox(height: 20),
+=======
+              if (!_isSearching) ...[
+                _buildCategories(),
+                const TopProvidersWidget(),
+                _buildProviderList(),
+                const PlatformRatingWidget(),
+                const SizedBox(height: 20),
+              ] else ...[
+                 _buildSearchResults(),
+              ],
+>>>>>>> b5fc919 (updated some features in my websites)
             ],
           ),
         ),
@@ -75,19 +120,73 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchResults() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: 'Search services...',
-          prefixIcon: const Icon(Icons.search),
-          contentPadding: const EdgeInsets.symmetric(vertical: 0),
-          fillColor: Colors.grey.shade100,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Search Results',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          if (_filteredCategories.isEmpty)
+            const Center(child: Text('No matching categories found'))
+          else
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _filteredCategories.length,
+              itemBuilder: (context, index) {
+                final cat = _filteredCategories[index];
+                return ListTile(
+                  leading: const Icon(Icons.category_outlined, color: AppTheme.accentColor),
+                  title: Text(cat.name),
+                  onTap: () {
+                    setState(() {
+                      _selectedCategoryId = cat.id;
+                      _searchController.clear();
+                      _isSearching = false;
+                      _loadData();
+                    });
+                  },
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
-        onChanged: (value) {
-          // Implement search logic if needed
-        },
+        child: TextField(
+          controller: _searchController,
+          onChanged: _filterCategories,
+          decoration: InputDecoration(
+            hintText: 'Search for professional services...',
+            hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
+            prefixIcon: const Icon(Icons.search, color: AppTheme.accentColor),
+            border: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+        ),
       ),
     );
   }
@@ -103,10 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         }
         if (snapshot.hasError) {
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text('Error loading categories: ${snapshot.error}', style: const TextStyle(color: Colors.red, fontSize: 12)),
-          );
+          return const SizedBox.shrink();
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Padding(
@@ -175,10 +271,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ));
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Padding(
-            padding: EdgeInsets.all(32.0),
-            child: Text('No professionals found in this category'),
-          ));
+          return const SizedBox.shrink();
         }
 
         final providers = snapshot.data!;
