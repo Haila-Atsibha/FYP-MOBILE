@@ -186,31 +186,43 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.5,
       children: [
-        _buildStatCard('Pending', stats.pendingRequests.toString(), Icons.pending_actions, Colors.orange),
-        _buildStatCard('Active', stats.activeBookings.toString(), Icons.play_arrow, Colors.blue),
-        _buildStatCard('Completed', stats.completedJobs.toString(), Icons.check_circle, Colors.green),
-        _buildStatCard('Earnings', 'ETB ${stats.totalEarnings.toStringAsFixed(0)}', Icons.payments, Colors.purple),
+        _buildStatCard('Pending', stats.pendingRequests.toString(), Icons.pending_actions, Colors.orange, onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderBookingsScreen()));
+        }),
+        _buildStatCard('Active', stats.activeBookings.toString(), Icons.play_arrow, Colors.blue, onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderBookingsScreen()));
+        }),
+        _buildStatCard('Completed', stats.completedJobs.toString(), Icons.check_circle, Colors.green, onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderBookingsScreen()));
+        }),
+        _buildStatCard('Earnings', 'ETB ${stats.totalEarnings.toStringAsFixed(0)}', Icons.payments, Colors.purple, onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderSubscriptionsScreen()));
+        }),
       ],
     );
   }
 
-  Widget _buildStatCard(String label, String value, IconData icon, Color color) {
+  Widget _buildStatCard(String label, String value, IconData icon, Color color, {VoidCallback? onTap}) {
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(color: Colors.grey.shade200),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(height: 8),
-            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
-          ],
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: color),
+              const SizedBox(height: 8),
+              Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+            ],
+          ),
         ),
       ),
     );
