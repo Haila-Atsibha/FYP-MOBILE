@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class SavedScreen extends StatelessWidget {
   const SavedScreen({super.key});
@@ -7,10 +8,10 @@ class SavedScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Saved'),
+        title: Text(AppLocalizations.of(context)!.savedTitle),
       ),
-      body: const Center(
-        child: Text('Saved screen coming soon!'),
+      body: Center(
+        child: Text(AppLocalizations.of(context)!.savedComingSoon),
       ),
     );
   }

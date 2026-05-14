@@ -2,11 +2,13 @@ import 'package:flutter/foundation.dart' hide Category;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/screens/auth/camera_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -68,9 +70,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
           MaterialPageRoute(builder: (_) => const CameraScreen()),
         );
         if (picture != null) {
-          setState(() {
-            _verificationSelfie = picture;
-          });
+          final inputImage = InputImage.fromFilePath(picture.path);
+          final faceDetector = FaceDetector(options: FaceDetectorOptions());
+          
+          final faces = await faceDetector.processImage(inputImage);
+          
+          if (faces.isEmpty) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.registerNoFaceDetected)));
+            }
+            setState(() {
+              _verificationSelfie = null;
+            });
+          } else if (faces.length > 1) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.registerMultipleFacesDetected)));
+            }
+            setState(() {
+              _verificationSelfie = null;
+            });
+          } else {
+            setState(() {
+              _verificationSelfie = picture;
+            });
+          }
+          
+          faceDetector.close();
         }
       } else {
         final pickedFile = await _imagePicker.pickImage(source: source, imageQuality: 70);
@@ -114,14 +139,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     
     if (_profileImage == null || _nationalId == null || _verificationSelfie == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please provide all verification documents (Profile Image, National ID, Selfie)')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.registerProvideAllDocs)),
       );
       return;
     }
 
     if (_selectedRole == 'provider' && _selectedCategories.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Providers must select at least one service category.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.registerProviderCategoryRequired)),
       );
       return;
     }
@@ -143,7 +168,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration successful! Please login.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.registerSuccess)),
         );
         Navigator.pop(context); // Go back to login screen
       }
@@ -192,7 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Create Account',
+                        AppLocalizations.of(context)!.registerCreateAccount,
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -200,7 +225,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Join the QuickServe professional network',
+                        AppLocalizations.of(context)!.registerJoinNetwork,
                         style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
                       ),
                     ],
@@ -216,23 +241,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Basic Information', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+                    Text(AppLocalizations.of(context)!.registerBasicInformation, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _nameController,
-                      label: 'Full Name',
-                      hint: 'John Doe',
+                      label: AppLocalizations.of(context)!.registerFullName,
+                      hint: AppLocalizations.of(context)!.registerFullNameHint,
                       icon: Icons.person_outline,
-                      validator: (v) => v!.isEmpty ? 'Please enter your full name' : null,
+                      validator: (v) => v!.isEmpty ? AppLocalizations.of(context)!.registerFullNameRequired : null,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
                       controller: _emailController,
                       label: 'Email Address',
-                      hint: 'john@example.com',
+                      hint: AppLocalizations.of(context)!.registerEmailHint,
                       icon: Icons.email_outlined,
                       keyboardType: TextInputType.emailAddress,
-                      validator: (v) => !v!.contains('@') ? 'Please enter a valid email' : null,
+                      validator: (v) => !v!.contains('@') ? AppLocalizations.of(context)!.registerEmailRequired : null,
                     ),
                     const SizedBox(height: 16),
                     _buildTextField(
@@ -245,11 +270,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
                         onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                       ),
-                      validator: (v) => v!.length < 6 ? 'Password must be at least 6 characters' : null,
+                      validator: (v) => v!.length < 6 ? AppLocalizations.of(context)!.registerPasswordLengthError : null,
                     ),
                     const SizedBox(height: 24),
                     
-                    const Text('Select Role', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
+                    Text(AppLocalizations.of(context)!.registerSelectRole, style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
                     const SizedBox(height: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -262,40 +287,30 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         child: DropdownButton<String>(
                           value: _selectedRole,
                           isExpanded: true,
-                          items: const [
-                            DropdownMenuItem(value: 'customer', child: Text('I am a Customer')),
-                            DropdownMenuItem(value: 'provider', child: Text('I am a Provider')),
+                          items: [
+                            DropdownMenuItem(value: 'customer', child: Text(AppLocalizations.of(context)!.registerRoleCustomer)),
+                            DropdownMenuItem(value: 'provider', child: Text(AppLocalizations.of(context)!.registerRoleProvider)),
                           ],
                           onChanged: (val) => setState(() => _selectedRole = val!),
                         ),
                       ),
                     ),
-
-<<<<<<< HEAD
-                  const SizedBox(height: 24),
-                  const Text('Service Categories', style: TextStyle(fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Select the services you offer',
-                    style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
-                  ),
-                  const SizedBox(height: 8),
-                  _isLoadingCategories 
-                      ? const Center(child: CircularProgressIndicator())
-                      : _categoryError != null
-                          ? Text('Error loading categories: \$_categoryError', style: const TextStyle(color: Colors.red))
-                          : _categories.isEmpty
-                              ? const Text('No categories available.')
-                              : Wrap(
-=======
                     if (_selectedRole == 'provider') ...[
                       const SizedBox(height: 24),
-                      const Text('Service Categories', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
-                      const SizedBox(height: 12),
+                      Text(AppLocalizations.of(context)!.registerServiceCategories, style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
+                      const SizedBox(height: 4),
+                      Text(
+                        AppLocalizations.of(context)!.registerSelectServices,
+                        style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                      ),
+                      const SizedBox(height: 8),
                       _isLoadingCategories 
                           ? const Center(child: CircularProgressIndicator())
-                          : Wrap(
->>>>>>> b5fc919 (updated some features in my websites)
+                          : _categoryError != null
+                              ? Text('Error loading categories: $_categoryError', style: const TextStyle(color: Colors.red))
+                              : _categories.isEmpty
+                                  ? Text(AppLocalizations.of(context)!.registerNoCategoriesAvailable)
+                                  : Wrap(
                               spacing: 8,
                               runSpacing: 8,
                               children: _categories.map((cat) {
@@ -317,24 +332,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ],
 
                     const SizedBox(height: 32),
-                    const Text('Verification Documents', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+                    Text(AppLocalizations.of(context)!.registerVerificationDocs, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
                     const SizedBox(height: 16),
                     _buildFileUploadRow(
-                      label: 'Profile Photo',
+                      label: AppLocalizations.of(context)!.registerProfilePhoto,
                       file: _profileImage,
                       onTap: () => _pickImage(ImageSource.gallery, 'profile'),
                       icon: Icons.camera_alt_outlined,
                     ),
                     const SizedBox(height: 16),
                     _buildFileUploadRow(
-                      label: 'National ID Card',
+                      label: AppLocalizations.of(context)!.registerNationalIdCard,
                       file: _nationalId,
                       onTap: _pickDocument,
                       icon: Icons.badge_outlined,
                     ),
                     const SizedBox(height: 16),
                     
-                    const Text('Face Verification', style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
+                    Text(AppLocalizations.of(context)!.registerFaceVerification, style: TextStyle(fontWeight: FontWeight.w600, color: AppTheme.primaryColor)),
                     const SizedBox(height: 8),
                     InkWell(
                       onTap: () => _pickImage(ImageSource.camera, 'selfie'),
@@ -351,7 +366,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             const Icon(Icons.face, size: 40, color: AppTheme.accentColor),
                             const SizedBox(height: 8),
                             Text(
-                              _verificationSelfie == null ? 'Capture Verification Selfie' : 'Selfie Captured Successfully',
+                              _verificationSelfie == null ? AppLocalizations.of(context)!.registerCaptureSelfie : AppLocalizations.of(context)!.registerSelfieCaptured,
                               style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -362,11 +377,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (_selectedRole == 'provider') ...[
                       const SizedBox(height: 24),
                       _buildFileUploadRow(
-                        label: 'Educational / Certifications',
+                        label: AppLocalizations.of(context)!.registerEducationalDocs,
                         file: _educationalDocuments.isEmpty ? null : _educationalDocuments.first,
                         onTap: () => _pickDocument(multiple: true),
                         icon: Icons.school_outlined,
-                        trailing: _educationalDocuments.length > 1 ? Text('+${_educationalDocuments.length - 1} more') : null,
+                        trailing: _educationalDocuments.length > 1 ? Text('+${_educationalDocuments.length - 1} ${AppLocalizations.of(context)!.registerMore}') : null,
                       ),
                     ],
 
@@ -380,13 +395,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       child: _isLoading
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Complete Registration', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          : Text(AppLocalizations.of(context)!.registerCompleteBtn, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
                     const SizedBox(height: 16),
                     Center(
                       child: TextButton(
                         onPressed: () => Navigator.pop(context),
-                        child: const Text('Already have an account? Login here', style: TextStyle(fontWeight: FontWeight.w600)),
+                        child: Text(AppLocalizations.of(context)!.registerAlreadyHaveAccount, style: TextStyle(fontWeight: FontWeight.w600)),
                       ),
                     ),
                     const SizedBox(height: 48),
@@ -459,7 +474,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    uploaded ? (file is XFile ? file.name : file.name) : 'No file chosen',
+                    uploaded ? (file is XFile ? file.name : file.name) : AppLocalizations.of(context)!.registerNoFileChosen,
                     style: TextStyle(color: uploaded ? Colors.black87 : Colors.grey, fontSize: 13),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

@@ -4,6 +4,7 @@ import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/screens/booking/booking_screen.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class TopProvidersWidget extends StatefulWidget {
   const TopProvidersWidget({super.key});
@@ -44,11 +45,11 @@ class _TopProvidersWidgetState extends State<TopProvidersWidget> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
               child: Text(
-                'Top Rated Professionals',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                AppLocalizations.of(context)!.topRatedProfessionals,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(
@@ -99,7 +100,7 @@ class _TopProvidersWidgetState extends State<TopProvidersWidget> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                provider.category ?? 'Provider',
+                                provider.category ?? AppLocalizations.of(context)!.providerPlaceholder,
                                 style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
                               ),
                               const SizedBox(height: 6),

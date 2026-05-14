@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/screens/complaint/complaints_history_screen.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class ComplaintScreen extends StatefulWidget {
   const ComplaintScreen({super.key});
@@ -30,7 +31,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
           );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Complaint submitted successfully. We will review it soon.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.complaintSubmitSuccess)),
         );
         Navigator.pop(context);
         Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ComplaintsHistoryScreen()));
@@ -38,7 +39,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit complaint: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.complaintSubmitError}$e')),
         );
         setState(() => _submitting = false);
       }
@@ -49,11 +50,11 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Report a Complaint'),
+        title: Text(AppLocalizations.of(context)!.complaintReportTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.history),
-            tooltip: 'Complaint History',
+            tooltip: AppLocalizations.of(context)!.complaintHistoryTooltip,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const ComplaintsHistoryScreen()),
@@ -69,50 +70,50 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Help us improve',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+              Text(
+                AppLocalizations.of(context)!.complaintHelpImprove,
+                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
               ),
               const SizedBox(height: 8),
               Text(
-                'Please provide details about your issue. We take all complaints seriously.',
+                AppLocalizations.of(context)!.complaintHelpDescription,
                 style: TextStyle(color: Colors.grey.shade600),
               ),
               const SizedBox(height: 32),
               TextFormField(
                 controller: _subjectController,
-                decoration: const InputDecoration(
-                  labelText: 'Subject',
-                  hintText: 'e.g., Service not provided as described',
-                  prefixIcon: Icon(Icons.subject),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.complaintSubject,
+                  hintText: AppLocalizations.of(context)!.complaintSubjectHint,
+                  prefixIcon: const Icon(Icons.subject),
                 ),
-                validator: (value) => value == null || value.isEmpty ? 'Please enter a subject' : null,
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.complaintSubjectRequired : null,
               ),
               const SizedBox(height: 20),
               DropdownButtonFormField<String>(
                 value: _priority,
-                decoration: const InputDecoration(
-                  labelText: 'Priority',
-                  prefixIcon: Icon(Icons.priority_high),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.complaintPriority,
+                  prefixIcon: const Icon(Icons.priority_high),
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'low', child: Text('Low')),
-                  DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                  DropdownMenuItem(value: 'high', child: Text('High')),
+                items: [
+                  DropdownMenuItem(value: 'low', child: Text(AppLocalizations.of(context)!.complaintPriorityLow)),
+                  DropdownMenuItem(value: 'medium', child: Text(AppLocalizations.of(context)!.complaintPriorityMedium)),
+                  DropdownMenuItem(value: 'high', child: Text(AppLocalizations.of(context)!.complaintPriorityHigh)),
                 ],
                 onChanged: (value) => setState(() => _priority = value!),
               ),
               const SizedBox(height: 20),
               TextFormField(
                 controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  hintText: 'Provide as much detail as possible...',
-                  prefixIcon: Icon(Icons.description_outlined),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.complaintDescription,
+                  hintText: AppLocalizations.of(context)!.complaintDescriptionHint,
+                  prefixIcon: const Icon(Icons.description_outlined),
                   alignLabelWithHint: true,
                 ),
                 maxLines: 5,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter a description' : null,
+                validator: (value) => value == null || value.isEmpty ? AppLocalizations.of(context)!.complaintDescriptionRequired : null,
               ),
               const SizedBox(height: 48),
               SizedBox(
@@ -124,7 +125,7 @@ class _ComplaintScreenState extends State<ComplaintScreen> {
                   ),
                   child: _submitting
                       ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Submit Complaint', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      : Text(AppLocalizations.of(context)!.complaintSubmitButton, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
               ),
             ],

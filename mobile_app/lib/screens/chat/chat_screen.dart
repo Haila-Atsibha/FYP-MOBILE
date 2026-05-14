@@ -5,6 +5,7 @@ import 'package:mobile_app/services/api_service.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class ChatScreen extends StatefulWidget {
   final Conversation conversation;
@@ -52,8 +53,8 @@ class _ChatScreenState extends State<ChatScreen> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Your message couldn\'t be sent. Please check your connection.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.chatMessageSendError),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -175,10 +176,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Icon(Icons.info_outline, color: Colors.amber.shade800, size: 20),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Messaging will be enabled once the provider accepts your request.',
-                        style: TextStyle(color: Color(0xFF92400E), fontSize: 13, fontWeight: FontWeight.w500),
+                        AppLocalizations.of(context)!.chatPendingMessageNotice,
+                        style: const TextStyle(color: Color(0xFF92400E), fontSize: 13, fontWeight: FontWeight.w500),
                       ),
                     ),
                   ],
@@ -199,7 +200,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Messaging is closed for this ${widget.conversation.bookingStatus.toLowerCase()} booking.',
+                        '${AppLocalizations.of(context)!.chatClosedMessageNoticePrefix}${widget.conversation.bookingStatus.toLowerCase()}${AppLocalizations.of(context)!.chatClosedMessageNoticeSuffix}',
                         style: TextStyle(color: Colors.red.shade900, fontSize: 13, fontWeight: FontWeight.w500),
                       ),
                     ),
@@ -214,7 +215,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     controller: _messageController,
                     enabled: isAccepted,
                     decoration: InputDecoration(
-                      hintText: isAccepted ? 'Type a message...' : 'Waiting for provider acceptance...',
+                      hintText: isAccepted ? AppLocalizations.of(context)!.chatTypeMessageHint : AppLocalizations.of(context)!.chatWaitingForAcceptanceHint,
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                     ),

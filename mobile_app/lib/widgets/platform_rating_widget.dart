@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class PlatformRatingWidget extends StatefulWidget {
   final VoidCallback? onClose;
@@ -23,7 +24,7 @@ class _PlatformRatingWidgetState extends State<PlatformRatingWidget> {
       await context.read<ApiService>().submitPlatformRating(_rating, _feedbackController.text);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Thank you for your feedback!')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.ratingFeedbackSuccess)),
         );
         setState(() {
           _rating = 0;
@@ -37,7 +38,7 @@ class _PlatformRatingWidgetState extends State<PlatformRatingWidget> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to submit: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.ratingSubmitError}$e')),
         );
         setState(() => _submitting = false);
       }
@@ -62,12 +63,12 @@ class _PlatformRatingWidgetState extends State<PlatformRatingWidget> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Rate the platform',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                  Text(
+                    AppLocalizations.of(context)!.ratingTitle,
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                   ),
                   const SizedBox(height: 8),
-                  const Text('How is your experience with QuickServe so far?'),
+                  Text(AppLocalizations.of(context)!.ratingSubtitle),
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -86,9 +87,9 @@ class _PlatformRatingWidgetState extends State<PlatformRatingWidget> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: _feedbackController,
-                      decoration: const InputDecoration(
-                        hintText: 'Any specific feedback? (Optional)',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.ratingFeedbackHint,
+                        border: const OutlineInputBorder(),
                         fillColor: Colors.white,
                         filled: true,
                       ),
@@ -101,7 +102,7 @@ class _PlatformRatingWidgetState extends State<PlatformRatingWidget> {
                         onPressed: _submitting ? null : _submit,
                         child: _submitting
                             ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                            : const Text('Submit Feedback'),
+                            : Text(AppLocalizations.of(context)!.ratingSubmit),
                       ),
                     ),
                   ],

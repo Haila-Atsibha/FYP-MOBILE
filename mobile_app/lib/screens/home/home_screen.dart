@@ -13,7 +13,8 @@ import 'package:mobile_app/screens/customer/customer_profile_screen.dart';
 import 'package:mobile_app/widgets/top_providers_widget.dart';
 import 'package:mobile_app/widgets/platform_rating_widget.dart';
 import 'package:provider/provider.dart';
-
+import 'package:mobile_app/l10n/app_localizations.dart';
+import 'package:mobile_app/providers/locale_provider.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -25,15 +26,11 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<TopProvider>> _providersFuture;
   late Future<List<Category>> _categoriesFuture;
   int? _selectedCategoryId;
-<<<<<<< HEAD
   bool _showRatingWidget = true;
-=======
-  
   final TextEditingController _searchController = TextEditingController();
   List<Category> _allCategories = [];
   List<Category> _filteredCategories = [];
   bool _isSearching = false;
->>>>>>> b5fc919 (updated some features in my websites)
 
   @override
   void initState() {
@@ -67,8 +64,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       drawer: _buildDrawer(),
       appBar: AppBar(
-        title: const Text('QuickServe'),
+        title: Text(AppLocalizations.of(context)!.appTitle),
         actions: [
+          TextButton(
+            onPressed: () {
+              context.read<LocaleProvider>().toggleLocale();
+            },
+            child: Text(
+              AppLocalizations.of(context)!.languageToggle,
+              style: const TextStyle(color: AppTheme.accentColor, fontWeight: FontWeight.bold),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_none),
             onPressed: () {},
@@ -95,24 +101,16 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSearchBar(),
-<<<<<<< HEAD
-              _buildCategories(),
-              const TopProvidersWidget(),
-              _buildProviderList(), // Renamed
-              if (_showRatingWidget)
-                PlatformRatingWidget(onClose: () => setState(() => _showRatingWidget = false)),
-              const SizedBox(height: 20),
-=======
               if (!_isSearching) ...[
                 _buildCategories(),
                 const TopProvidersWidget(),
                 _buildProviderList(),
-                const PlatformRatingWidget(),
+                if (_showRatingWidget)
+                  PlatformRatingWidget(onClose: () => setState(() => _showRatingWidget = false)),
                 const SizedBox(height: 20),
               ] else ...[
                  _buildSearchResults(),
               ],
->>>>>>> b5fc919 (updated some features in my websites)
             ],
           ),
         ),
@@ -127,12 +125,12 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Search Results',
+            AppLocalizations.of(context)!.searchResults,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           if (_filteredCategories.isEmpty)
-            const Center(child: Text('No matching categories found'))
+            Center(child: Text(AppLocalizations.of(context)!.noCategoriesFound))
           else
             ListView.builder(
               shrinkWrap: true,
@@ -178,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
           controller: _searchController,
           onChanged: _filterCategories,
           decoration: InputDecoration(
-            hintText: 'Search for professional services...',
+            hintText: AppLocalizations.of(context)!.searchHint,
             hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
             prefixIcon: const Icon(Icons.search, color: AppTheme.accentColor),
             border: InputBorder.none,
@@ -205,9 +203,9 @@ class _HomeScreenState extends State<HomeScreen> {
           return const SizedBox.shrink();
         }
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text('No categories available'),
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(AppLocalizations.of(context)!.noCategoriesFound),
           );
         }
 
@@ -215,11 +213,11 @@ class _HomeScreenState extends State<HomeScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
               child: Text(
-                'Service Categories',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                AppLocalizations.of(context)!.serviceCategories,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
             SizedBox(
@@ -236,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: ChoiceChip(
-                      label: Text(isAll ? 'All' : category!.name),
+                      label: Text(isAll ? AppLocalizations.of(context)!.all : category!.name),
                       selected: isSelected,
                       onSelected: (selected) {
                         setState(() {
@@ -281,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16),
               child: Text(
-                _selectedCategoryId == null ? 'All Professionals' : 'Available Professionals',
+                _selectedCategoryId == null ? AppLocalizations.of(context)!.allProfessionals : AppLocalizations.of(context)!.availableProfessionals,
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
@@ -343,7 +341,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      provider.category ?? 'Professional',
+                      provider.category ?? AppLocalizations.of(context)!.professional,
                       style: const TextStyle(color: AppTheme.accentColor, fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                     Text(
@@ -352,7 +350,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      provider.bio ?? 'Professional service provider',
+                      provider.bio ?? AppLocalizations.of(context)!.professionalBioPlaceholder,
                       style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -371,7 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${provider.completedJobs} jobs',
+                    '${provider.completedJobs} ${AppLocalizations.of(context)!.jobs}',
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                   ),
                 ],
@@ -389,7 +387,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(auth.user?.name ?? 'User'),
+            accountName: Text(auth.user?.name ?? AppLocalizations.of(context)!.drawerUserPlaceholder),
             accountEmail: Text(auth.user?.email ?? ''),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
@@ -402,12 +400,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.home_outlined),
-            title: const Text('Home'),
+            title: Text(AppLocalizations.of(context)!.navHome),
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.message_outlined),
-            title: const Text('Messages'),
+            title: Text(AppLocalizations.of(context)!.navMessages),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(
@@ -417,7 +415,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.book_online_outlined),
-            title: const Text('My Bookings'),
+            title: Text(AppLocalizations.of(context)!.navMyBookings),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(
@@ -427,7 +425,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.report_problem_outlined, color: Colors.orange),
-            title: const Text('Report a Complaint'),
+            title: Text(AppLocalizations.of(context)!.navReportComplaint),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(
@@ -439,7 +437,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.person_outline),
-            title: const Text('Profile Settings'),
+            title: Text(AppLocalizations.of(context)!.navProfileSettings),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(
@@ -449,7 +447,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.pink),
-            title: const Text('Logout', style: TextStyle(color: Colors.pink)),
+            title: Text(AppLocalizations.of(context)!.navLogout, style: const TextStyle(color: Colors.pink)),
             onTap: () {
             auth.logout();
             Navigator.of(context).pushAndRemoveUntil(

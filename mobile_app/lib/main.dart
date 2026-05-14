@@ -4,7 +4,10 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/screens/auth/login_screen.dart';
 import 'package:mobile_app/services/api_service.dart';
+import 'package:mobile_app/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -30,12 +33,28 @@ class MyApp extends StatelessWidget {
           create: (context) => AuthProvider(context.read<ApiService>()),
           update: (context, api, auth) => auth ?? AuthProvider(api),
         ),
+        ChangeNotifierProvider<LocaleProvider>(create: (_) => LocaleProvider()),
       ],
-      child: MaterialApp(
-        title: 'QuickServe',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        home: const LoginScreen(),
+      child: Consumer<LocaleProvider>(
+        builder: (context, localeProvider, child) {
+          return MaterialApp(
+            title: 'QuickServe',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            locale: localeProvider.locale,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'),
+              Locale('am'),
+            ],
+            home: const LoginScreen(),
+          );
+        },
       ),
     );
   }

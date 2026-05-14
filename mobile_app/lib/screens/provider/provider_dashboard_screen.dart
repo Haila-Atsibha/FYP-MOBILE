@@ -5,6 +5,8 @@ import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/screens/auth/login_screen.dart';
+import 'package:mobile_app/providers/locale_provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 import 'package:mobile_app/screens/provider/provider_bookings_screen.dart';
 import 'package:mobile_app/screens/provider/provider_reviews_screen.dart';
@@ -94,6 +96,15 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
       appBar: AppBar(
         title: const Text('Provider Dashboard'),
         actions: [
+          TextButton(
+            onPressed: () {
+              context.read<LocaleProvider>().toggleLocale();
+            },
+            child: Text(
+              AppLocalizations.of(context)?.languageToggle ?? 'Am',
+              style: const TextStyle(color: AppTheme.accentColor, fontWeight: FontWeight.bold),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {

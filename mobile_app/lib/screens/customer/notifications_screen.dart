@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({super.key});
@@ -7,10 +8,10 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(AppLocalizations.of(context)!.notificationsTitle),
       ),
-      body: const Center(
-        child: Text('Notifications screen coming soon!'),
+      body: Center(
+        child: Text(AppLocalizations.of(context)!.notificationsComingSoon),
       ),
     );
   }

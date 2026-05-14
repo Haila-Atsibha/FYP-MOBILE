@@ -5,6 +5,8 @@ import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/screens/auth/login_screen.dart';
+import 'package:mobile_app/providers/locale_provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:mobile_app/screens/admin/admin_bookings_screen.dart';
 import 'package:mobile_app/screens/admin/admin_complaints_screen.dart';
 import 'package:mobile_app/screens/admin/admin_categories_screen.dart';
@@ -42,6 +44,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
         actions: [
+          TextButton(
+            onPressed: () {
+              context.read<LocaleProvider>().toggleLocale();
+            },
+            child: Text(
+              AppLocalizations.of(context)?.languageToggle ?? 'Am',
+              style: const TextStyle(color: AppTheme.accentColor, fontWeight: FontWeight.bold),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {

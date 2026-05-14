@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
@@ -30,11 +31,11 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Cancel Booking'),
-        content: const Text('Are you sure you want to cancel this booking?'),
+        title: Text(AppLocalizations.of(context)!.bookCancelBooking),
+        content: Text(AppLocalizations.of(context)!.bookCancelConfirm),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('No')),
-          TextButton(onPressed: () => Navigator.pop(context, true), child: const Text('Yes, Cancel', style: TextStyle(color: Colors.red))),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.bookNo)),
+          TextButton(onPressed: () => Navigator.pop(context, true), child: Text(AppLocalizations.of(context)!.bookYesCancel, style: TextStyle(color: Colors.red))),
         ],
       ),
     );
@@ -43,7 +44,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
       try {
         await context.read<ApiService>().updateBookingStatus(id, 'cancelled');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Booking cancelled')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.bookCancelledMessage)));
           setState(() {
             _loadBookings();
           });
@@ -59,7 +60,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Bookings')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.bookMyBookings)),
       body: FutureBuilder<List<Booking>>(
         future: _bookingsFuture,
         builder: (context, snapshot) {
@@ -77,7 +78,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                   Icon(Icons.calendar_today_outlined, size: 64, color: Colors.grey.shade300),
                   const SizedBox(height: 16),
                   Text(
-                    'No bookings found',
+                    AppLocalizations.of(context)!.bookNoBookings,
                     style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w500),
                   ),
                 ],
@@ -110,16 +111,16 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         children: [
                           Expanded(
                             child: Text(
-                              booking.title ?? 'Service',
+                              booking.title ?? AppLocalizations.of(context)!.bookServiceDefault,
                               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                           ),
-                          _buildStatusBadge(booking.status),
+                          _buildStatusBadge(context, booking.status),
                         ],
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Provider: ${booking.providerName ?? "QuickServe Expert"}',
+                        '${AppLocalizations.of(context)!.bookProviderPrefix}${booking.providerName ?? AppLocalizations.of(context)!.bookDefaultProviderName}',
                         style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
                       ),
                       const SizedBox(height: 12),
@@ -142,15 +143,15 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                             TextButton(
                               onPressed: () => _cancelBooking(booking.id),
                               style: TextButton.styleFrom(foregroundColor: Colors.red),
-                              child: const Text('Cancel Booking'),
+                              child: Text(AppLocalizations.of(context)!.bookCancelBooking),
                             )
                           else if (booking.status.toLowerCase() == 'completed')
                             booking.isReviewed
                                 ? Row(
-                                    children: const [
+                                    children: [
                                       Icon(Icons.check_circle, color: Colors.green, size: 16),
                                       SizedBox(width: 4),
-                                      Text('Reviewed', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                                      Text(AppLocalizations.of(context)!.bookReviewed, style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
                                     ],
                                   )
                                 : ElevatedButton(
@@ -159,7 +160,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                       minimumSize: Size.zero,
                                     ),
-                                    child: const Text('Rate & Review', style: TextStyle(fontSize: 12)),
+                                    child: Text(AppLocalizations.of(context)!.bookRateReview, style: TextStyle(fontSize: 12)),
                                   ),
                         ],
                       ),
@@ -186,12 +187,12 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         return StatefulBuilder(
           builder: (context, setDialogState) {
             return AlertDialog(
-              title: const Text('Rate & Review'),
+              title: Text(AppLocalizations.of(context)!.bookRateReview),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('How was your experience with ${booking.providerName ?? "the provider"}?'),
+                    Text('${AppLocalizations.of(context)!.bookReviewPromptPrefix}${booking.providerName ?? AppLocalizations.of(context)!.bookDefaultProviderName}${AppLocalizations.of(context)!.bookReviewPromptSuffix}'),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -209,9 +210,9 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                     const SizedBox(height: 16),
                     TextField(
                       controller: _commentController,
-                      decoration: const InputDecoration(
-                        labelText: 'Comments (Optional)',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.bookReviewComments,
+                        border: const OutlineInputBorder(),
                       ),
                       maxLines: 3,
                     ),
@@ -221,7 +222,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
               actions: [
                 TextButton(
                   onPressed: _isSubmitting ? null : () => Navigator.pop(dialogContext),
-                  child: const Text('Cancel'),
+                  child: Text(AppLocalizations.of(context)!.bookCancel),
                 ),
                 ElevatedButton(
                   onPressed: _isSubmitting
@@ -237,7 +238,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                             if (mounted) {
                               Navigator.pop(dialogContext);
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Review submitted successfully!')),
+                                SnackBar(content: Text(AppLocalizations.of(context)!.bookReviewSuccess)),
                               );
                               setState(() {
                                 _loadBookings();
@@ -246,7 +247,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                           } catch (e) {
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Failed: $e')),
+                                SnackBar(content: Text('${AppLocalizations.of(context)!.bookReviewFailed}$e')),
                               );
                               setDialogState(() => _isSubmitting = false);
                             }
@@ -254,7 +255,7 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         },
                   child: _isSubmitting
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Text('Submit'),
+                      : Text(AppLocalizations.of(context)!.bookSubmit),
                 ),
               ],
             );
@@ -264,26 +265,26 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
     );
   }
 
-  Widget _buildStatusBadge(String status) {
+  Widget _buildStatusBadge(BuildContext context, String status) {
     status = status.toLowerCase();
     Color color = Colors.grey;
     String label = status;
 
     if (status == 'pending') {
       color = Colors.orange;
-      label = 'Pending Approval';
+      label = AppLocalizations.of(context)!.bookStatusPending;
     } else if (status == 'accepted') {
       color = Colors.blue;
-      label = 'Accepted';
+      label = AppLocalizations.of(context)!.bookStatusAccepted;
     } else if (status == 'completed') {
       color = Colors.green;
-      label = 'Completed';
+      label = AppLocalizations.of(context)!.bookStatusCompleted;
     } else if (status == 'rejected') {
       color = Colors.red;
-      label = 'Rejected';
+      label = AppLocalizations.of(context)!.bookStatusRejected;
     } else if (status == 'cancelled') {
         color = Colors.red.shade300;
-        label = 'Cancelled';
+        label = AppLocalizations.of(context)!.bookStatusCancelled;
     }
 
     return Container(

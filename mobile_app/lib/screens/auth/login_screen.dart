@@ -6,6 +6,7 @@ import 'package:mobile_app/screens/home/home_screen.dart';
 import 'package:mobile_app/screens/provider/provider_dashboard_screen.dart';
 import 'package:mobile_app/screens/admin/admin_dashboard_screen.dart';
 import 'package:mobile_app/screens/auth/register_screen.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(errorMsg ?? 'Login failed. Please check your credentials.'),
+          content: Text(errorMsg ?? AppLocalizations.of(context)!.loginFailed),
           backgroundColor: Colors.red.shade600,
           duration: const Duration(seconds: 4),
         ),
@@ -90,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        'Welcome to\nQuickServe',
+                        AppLocalizations.of(context)!.welcomeMessage,
                         style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.white,
@@ -99,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Professional Services at your doorstep',
+                        AppLocalizations.of(context)!.professionalServicesSubtitle,
                         style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 16),
                       ),
                     ],
@@ -113,17 +114,17 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Sign In',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                  Text(
+                    AppLocalizations.of(context)!.signIn,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                   ),
                   const SizedBox(height: 24),
                   TextField(
                     controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email Address',
-                      prefixIcon: Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.emailAddress,
+                      prefixIcon: const Icon(Icons.email_outlined),
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.emailAddress,
                   ),
@@ -132,7 +133,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: AppLocalizations.of(context)!.password,
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -149,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: auth.isLoading ? null : _handleLogin,
                         child: auth.isLoading
                             ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                            : const Text('Login', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            : Text(AppLocalizations.of(context)!.login, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       );
                     },
                   ),
@@ -163,12 +164,12 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                       child: RichText(
                         text: TextSpan(
-                          text: "Don't have an account? ",
+                          text: AppLocalizations.of(context)!.dontHaveAccount,
                           style: TextStyle(color: Colors.grey.shade600, fontSize: 15),
                           children: [
                             TextSpan(
-                              text: "Register Here",
-                              style: TextStyle(
+                              text: AppLocalizations.of(context)!.registerHere,
+                              style: const TextStyle(
                                 color: AppTheme.accentColor,
                                 fontWeight: FontWeight.bold,
                               ),

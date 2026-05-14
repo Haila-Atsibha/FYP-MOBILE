@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
@@ -52,7 +53,7 @@ class _BookingScreenState extends State<BookingScreen> {
   void _confirmBooking() async {
     if (_selectedServiceId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a service')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.bookSelectServiceWarning)),
       );
       return;
     }
@@ -70,15 +71,15 @@ class _BookingScreenState extends State<BookingScreen> {
           context: context,
           barrierDismissible: false,
           builder: (context) => AlertDialog(
-            title: const Text('Success'),
-            content: const Text('Your booking has been placed successfully!'),
+            title: Text(AppLocalizations.of(context)!.bookSuccessTitle),
+            content: Text(AppLocalizations.of(context)!.bookSuccessMessage),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop(); // dialog
                   Navigator.of(context).pop(); // screen
                 },
-                child: const Text('OK'),
+                child: Text(AppLocalizations.of(context)!.bookOk),
               ),
             ],
           ),
@@ -106,7 +107,7 @@ class _BookingScreenState extends State<BookingScreen> {
     final provider = _providerDetail!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Book a Service')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.bookTitle)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -154,13 +155,13 @@ class _BookingScreenState extends State<BookingScreen> {
             const Divider(height: 48),
 
             // Service Selection
-            const Text(
-              'Select a Service',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.bookSelectService,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             if (provider.services.isEmpty)
-              const Text('This provider has no services listed.')
+              Text(AppLocalizations.of(context)!.bookNoServices)
             else
               ...provider.services.map((service) => RadioListTile<int>(
                 value: service.id,
@@ -175,9 +176,9 @@ class _BookingScreenState extends State<BookingScreen> {
             const SizedBox(height: 32),
 
             // Job Description
-            const Text(
-              'Tell us about the job',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.bookJobDetails,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -201,7 +202,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ),
                 child: _isBooking 
                   ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('Confirm Booking', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  : Text(AppLocalizations.of(context)!.bookConfirm, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),
             ),
             const SizedBox(height: 24),

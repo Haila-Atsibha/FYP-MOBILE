@@ -5,6 +5,7 @@ import 'package:mobile_app/services/api_service.dart';
 import 'package:mobile_app/screens/chat/chat_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class ConversationListScreen extends StatefulWidget {
   const ConversationListScreen({super.key});
@@ -30,7 +31,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Messages'),
+        title: Text(AppLocalizations.of(context)!.chatMessagesTitle),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -43,12 +44,12 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
               return const Center(child: CircularProgressIndicator());
             }
             if (snapshot.hasError) {
-              return const Center(child: Column(
+              return Center(child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.lock_outline, size: 48, color: Colors.grey),
-                  SizedBox(height: 16),
-                  Text('Secure Messaging', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
+                  const Icon(Icons.lock_outline, size: 48, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  Text(AppLocalizations.of(context)!.chatSecureMessaging, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.grey)),
                 ],
               ));
             }
@@ -60,7 +61,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                     Icon(Icons.mail_outline, size: 64, color: Colors.grey.shade300),
                     const SizedBox(height: 16),
                     Text(
-                      'No messages to show yet',
+                      AppLocalizations.of(context)!.chatNoMessages,
                       style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w500),
                     ),
                   ],
@@ -111,7 +112,7 @@ class _ConversationListScreenState extends State<ConversationListScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        conversation.lastMessage ?? 'No messages yet',
+                        conversation.lastMessage ?? AppLocalizations.of(context)!.chatNoMessagesYet,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(color: Colors.grey.shade700),

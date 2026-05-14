@@ -4,6 +4,7 @@ import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class ComplaintsHistoryScreen extends StatefulWidget {
   const ComplaintsHistoryScreen({super.key});
@@ -29,7 +30,7 @@ class _ComplaintsHistoryScreenState extends State<ComplaintsHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Complaint History'),
+        title: Text(AppLocalizations.of(context)!.complaintHistoryTitle),
       ),
       body: RefreshIndicator(
         onRefresh: () async {
@@ -46,7 +47,7 @@ class _ComplaintsHistoryScreenState extends State<ComplaintsHistoryScreen> {
             }
             if (snapshot.hasError) {
               return Center(
-                child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)),
+                child: Text('${AppLocalizations.of(context)!.complaintHistoryError}${snapshot.error}', style: const TextStyle(color: Colors.red)),
               );
             }
 
@@ -54,12 +55,12 @@ class _ComplaintsHistoryScreenState extends State<ComplaintsHistoryScreen> {
             if (complaints.isEmpty) {
               return ListView(
                 physics: const AlwaysScrollableScrollPhysics(),
-                children: const [
-                  SizedBox(height: 200),
+                children: [
+                  const SizedBox(height: 200),
                   Center(
                     child: Text(
-                      'No complaints found.',
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      AppLocalizations.of(context)!.complaintHistoryNoComplaints,
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),
                     ),
                   ),
                 ],
@@ -124,7 +125,7 @@ class _ComplaintsHistoryScreenState extends State<ComplaintsHistoryScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Submitted on: ${DateFormat.yMMMd().format(complaint.createdAt)}',
+              '${AppLocalizations.of(context)!.complaintHistorySubmittedOn}${DateFormat.yMMMd().format(complaint.createdAt)}',
               style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
             ),
             const SizedBox(height: 12),
@@ -146,7 +147,7 @@ class _ComplaintsHistoryScreenState extends State<ComplaintsHistoryScreen> {
                         const Icon(Icons.admin_panel_settings, color: AppTheme.primaryColor, size: 16),
                         const SizedBox(width: 8),
                         Text(
-                          'Admin Response',
+                          AppLocalizations.of(context)!.complaintHistoryAdminResponse,
                           style: TextStyle(color: AppTheme.primaryColor.withOpacity(0.8), fontWeight: FontWeight.bold),
                         ),
                       ],
@@ -156,7 +157,7 @@ class _ComplaintsHistoryScreenState extends State<ComplaintsHistoryScreen> {
                     if (complaint.repliedAt != null) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'Responded on: ${DateFormat.yMMMd().format(complaint.repliedAt!)}',
+                        '${AppLocalizations.of(context)!.complaintHistoryRespondedOn}${DateFormat.yMMMd().format(complaint.repliedAt!)}',
                         style: TextStyle(color: Colors.grey.shade600, fontSize: 11),
                       ),
                     ]

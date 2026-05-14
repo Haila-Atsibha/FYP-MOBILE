@@ -7,6 +7,7 @@ import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class CustomerProfileScreen extends StatefulWidget {
   const CustomerProfileScreen({super.key});
@@ -65,14 +66,14 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
         context.read<AuthProvider>().updateUser(updatedUser);
 
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile updated successfully!')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.profileUpdateSuccess)),
         );
         Navigator.pop(context);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update profile: $e')),
+          SnackBar(content: Text('${AppLocalizations.of(context)!.profileUpdateError}$e')),
         );
         setState(() => _isLoading = false);
       }
@@ -85,7 +86,7 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: Text(AppLocalizations.of(context)!.profileEdit),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -129,27 +130,27 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                     const SizedBox(height: 32),
                     TextFormField(
                       controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Full Name',
-                        prefixIcon: Icon(Icons.person_outline),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.profileFullName,
+                        prefixIcon: const Icon(Icons.person_outline),
                       ),
                       validator: (value) =>
-                          value == null || value.isEmpty ? 'Please enter your name' : null,
+                          value == null || value.isEmpty ? AppLocalizations.of(context)!.profileNameRequired : null,
                     ),
                     const SizedBox(height: 20),
                     TextFormField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      decoration: const InputDecoration(
-                        labelText: 'Email Address',
-                        prefixIcon: Icon(Icons.email_outlined),
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.profileEmail,
+                        prefixIcon: const Icon(Icons.email_outlined),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please enter your email';
+                          return AppLocalizations.of(context)!.profileEmailRequired;
                         }
                         if (!value.contains('@')) {
-                          return 'Please enter a valid email';
+                          return AppLocalizations.of(context)!.profileEmailInvalid;
                         }
                         return null;
                       },
@@ -162,9 +163,9 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: const Text(
-                          'Save Changes',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        child: Text(
+                          AppLocalizations.of(context)!.profileSaveChanges,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ),
