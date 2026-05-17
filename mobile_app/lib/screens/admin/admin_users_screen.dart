@@ -4,6 +4,7 @@ import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 import 'full_screen_image_viewer.dart';
 
 class AdminUsersScreen extends StatefulWidget {
@@ -38,11 +39,12 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error: ${e.toString()}'),
+            content: Text(l10n?.errorText(e.toString()) ?? 'Error: ${e.toString()}'),
             action: SnackBarAction(
-              label: 'Copy URL',
+              label: l10n?.copyUrl ?? 'Copy URL',
               onPressed: () {
                 // You would typically use Clipboard.setData here
               },
@@ -84,7 +86,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         user.name,
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      const Text('User Documents', style: TextStyle(color: Colors.grey, fontSize: 14)),
+                      Text(AppLocalizations.of(context)?.userDocuments ?? 'User Documents', style: const TextStyle(color: Colors.grey, fontSize: 14)),
                     ],
                   ),
                 ),
@@ -101,25 +103,25 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   children: [
                     if (user.nationalIdUrl != null)
                       _buildDocItem(
-                        'National ID',
+                        AppLocalizations.of(context)?.nationalId ?? 'National ID',
                         user.nationalIdUrl!,
                         Icons.badge,
                         Colors.blue,
                       ),
                     if (user.verificationSelfieUrl != null)
                       _buildDocItem(
-                        'Verification Selfie',
+                        AppLocalizations.of(context)?.verificationSelfie ?? 'Verification Selfie',
                         user.verificationSelfieUrl!,
                         Icons.face,
                         Colors.green,
                       ),
                     if (user.role == 'provider' && user.educationalDocuments != null && user.educationalDocuments!.isNotEmpty) ...[
                       const Divider(height: 32),
-                      const Align(
+                      Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
-                          'Educational Documents',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                          AppLocalizations.of(context)?.educationalDocuments ?? 'Educational Documents',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -133,14 +135,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     if (user.nationalIdUrl == null && 
                         user.verificationSelfieUrl == null && 
                         (user.role != 'provider' || user.educationalDocuments == null || user.educationalDocuments!.isEmpty))
-                      const Padding(
-                        padding: EdgeInsets.all(40),
+                      Padding(
+                        padding: const EdgeInsets.all(40),
                         child: Center(
                           child: Column(
                             children: [
-                              Icon(Icons.no_accounts_outlined, size: 48, color: Colors.grey),
-                              SizedBox(height: 16),
-                              Text('No documents uploaded for this user.', style: TextStyle(color: Colors.grey)),
+                              const Icon(Icons.no_accounts_outlined, size: 48, color: Colors.grey),
+                              const SizedBox(height: 16),
+                              Text(AppLocalizations.of(context)?.noDocumentsUploaded ?? 'No documents uploaded for this user.', style: const TextStyle(color: Colors.grey)),
                             ],
                           ),
                         ),
@@ -199,7 +201,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.visibility_outlined, size: 18),
-                      label: Text(isPdfFile ? 'Open PDF' : 'View In-App'),
+                      label: Text(isPdfFile ? (AppLocalizations.of(context)?.openPdf ?? 'Open PDF') : (AppLocalizations.of(context)?.viewInApp ?? 'View In-App')),
                       onPressed: () {
                         if (isPdfFile) {
                           _openUrl(url);
@@ -222,7 +224,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         foregroundColor: Colors.white,
                       ),
                       icon: const Icon(Icons.download_outlined, size: 18),
-                      label: const Text('Download'),
+                      label: Text(AppLocalizations.of(context)?.download ?? 'Download'),
                       onPressed: () => _openUrl(url),
                     ),
                   ),
@@ -237,9 +239,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('User Management'),
+        title: Text(l10n?.userManagement ?? 'User Management'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -260,19 +263,19 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 children: [
                   const Icon(Icons.error_outline, color: Colors.red, size: 48),
                   const SizedBox(height: 16),
-                  const Text('Error fetching data:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(l10n?.errorFetchingData ?? 'Error fetching data:', style: const TextStyle(fontWeight: FontWeight.bold)),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(snapshot.error.toString(), textAlign: TextAlign.center),
                   ),
-                  ElevatedButton(onPressed: _loadUsers, child: const Text('Retry')),
+                  ElevatedButton(onPressed: _loadUsers, child: Text(l10n?.retry ?? 'Retry')),
                 ],
               ),
             );
           }
           final users = snapshot.data ?? [];
           if (users.isEmpty) {
-            return const Center(child: Text('No users found.'));
+            return Center(child: Text(l10n?.noUsersFound ?? 'No users found.'));
           }
 
           return ListView.builder(
@@ -292,7 +295,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   subtitle: Text('${user.email} • ${user.role}'),
                   trailing: IconButton(
                     icon: const Icon(Icons.folder_shared_outlined, color: AppTheme.primaryColor),
-                    tooltip: 'View Documents',
+                    tooltip: l10n?.viewDocuments ?? 'View Documents',
                     onPressed: () => _showUserDocuments(user),
                   ),
                 ),

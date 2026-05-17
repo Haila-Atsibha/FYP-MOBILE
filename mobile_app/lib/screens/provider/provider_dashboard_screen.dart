@@ -77,7 +77,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
         _loadStats();
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not launch payment screen')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.paymentScreenError)));
         }
       }
     } catch (e) {
@@ -94,7 +94,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Provider Dashboard'),
+        title: Text(AppLocalizations.of(context)?.providerDashboard ?? 'Provider Dashboard'),
         actions: [
           TextButton(
             onPressed: () {
@@ -130,7 +130,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Welcome, ${user?.name ?? "Provider"}',
+                AppLocalizations.of(context)?.welcomeProvider(user?.name ?? AppLocalizations.of(context)?.providerPlaceholder ?? "Provider") ?? 'Welcome, ${user?.name ?? "Provider"}',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -146,7 +146,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   }
                   if (!snapshot.hasData) {
-                    return const Center(child: Text('No stats available'));
+                    return Center(child: Text(AppLocalizations.of(context)?.noStatsAvailable ?? 'No stats available'));
                   }
 
                   final stats = snapshot.data!;
@@ -166,7 +166,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                             );
                           },
                           icon: const Icon(Icons.add_circle_outline, color: Colors.white),
-                          label: const Text('Add New Service', style: TextStyle(color: Colors.white, fontSize: 16)),
+                          label: Text(AppLocalizations.of(context)?.addNewService ?? 'Add New Service', style: const TextStyle(color: Colors.white, fontSize: 16)),
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             backgroundColor: AppTheme.primaryColor,
@@ -189,6 +189,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
   }
 
   Widget _buildStatsGrid(ProviderStats stats) {
+    final l10n = AppLocalizations.of(context);
     return GridView.count(
       crossAxisCount: 2,
       crossAxisSpacing: 16,
@@ -197,16 +198,16 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
       physics: const NeverScrollableScrollPhysics(),
       childAspectRatio: 1.5,
       children: [
-        _buildStatCard('Pending', stats.pendingRequests.toString(), Icons.pending_actions, Colors.orange, onTap: () {
+        _buildStatCard(l10n?.statPending ?? 'Pending', stats.pendingRequests.toString(), Icons.pending_actions, Colors.orange, onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderBookingsScreen()));
         }),
-        _buildStatCard('Active', stats.activeBookings.toString(), Icons.play_arrow, Colors.blue, onTap: () {
+        _buildStatCard(l10n?.statActive ?? 'Active', stats.activeBookings.toString(), Icons.play_arrow, Colors.blue, onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderBookingsScreen()));
         }),
-        _buildStatCard('Completed', stats.completedJobs.toString(), Icons.check_circle, Colors.green, onTap: () {
+        _buildStatCard(l10n?.statCompleted ?? 'Completed', stats.completedJobs.toString(), Icons.check_circle, Colors.green, onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderBookingsScreen()));
         }),
-        _buildStatCard('Earnings', 'ETB ${stats.totalEarnings.toStringAsFixed(0)}', Icons.payments, Colors.purple, onTap: () {
+        _buildStatCard(l10n?.statEarnings ?? 'Earnings', l10n?.etbAmount(stats.totalEarnings.toStringAsFixed(0)) ?? 'ETB ${stats.totalEarnings.toStringAsFixed(0)}', Icons.payments, Colors.purple, onTap: () {
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderSubscriptionsScreen()));
         }),
       ],
@@ -240,6 +241,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
   }
 
   Widget _buildSubscriptionCard(ProviderStats stats) {
+    final l10n = AppLocalizations.of(context);
     final bool isActive = stats.subscriptionStatus == 'active';
     return Card(
       elevation: 0,
@@ -253,13 +255,13 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           ListTile(
             leading: Icon(isActive ? Icons.verified_user : Icons.warning, color: isActive ? Colors.green : Colors.red),
             title: Text(
-              isActive ? 'Active Subscription' : 'Subscription Inactive',
+              isActive ? (l10n?.activeSubscription ?? 'Active Subscription') : (l10n?.subscriptionInactive ?? 'Subscription Inactive'),
               style: TextStyle(fontWeight: FontWeight.bold, color: isActive ? Colors.green.shade900 : Colors.red.shade900),
             ),
             subtitle: Text(
               stats.subscriptionExpiry != null 
-                ? 'Expires on ${stats.subscriptionExpiry!.toLocal().toString().split(' ')[0]}'
-                : 'No active subscription',
+                ? (l10n?.expiresOn(stats.subscriptionExpiry!.toLocal().toString().split(' ')[0]) ?? 'Expires on ${stats.subscriptionExpiry!.toLocal().toString().split(' ')[0]}')
+                : (l10n?.noActiveSubscription ?? 'No active subscription'),
             ),
           ),
           Padding(
@@ -273,7 +275,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
                    foregroundColor: Colors.white,
                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                 ),
-                child: Text(isActive ? 'Renew Early' : 'Renew Now', style: const TextStyle(fontWeight: FontWeight.bold)),
+                child: Text(isActive ? (l10n?.renewEarly ?? 'Renew Early') : (l10n?.renewNow ?? 'Renew Now'), style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
           )
@@ -283,12 +285,13 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
   }
 
   Widget _buildDrawer(BuildContext context, User? user) {
+    final l10n = AppLocalizations.of(context);
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(user?.name ?? 'Provider'),
+            accountName: Text(user?.name ?? l10n?.providerPlaceholder ?? 'Provider'),
             accountEmail: Text(user?.email ?? ''),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
@@ -306,12 +309,12 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.dashboard),
-            title: const Text('Dashboard'),
+            title: Text(l10n?.dashboard ?? 'Dashboard'),
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.build_circle),
-            title: const Text('My Services'),
+            title: Text(l10n?.myServices ?? 'My Services'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderServicesScreen()));
@@ -319,7 +322,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.list_alt),
-            title: const Text('Bookings'),
+            title: Text(l10n?.bookings ?? 'Bookings'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderBookingsScreen()));
@@ -327,7 +330,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.message),
-            title: const Text('Messages'),
+            title: Text(l10n?.messages ?? 'Messages'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ConversationListScreen()));
@@ -335,7 +338,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.star),
-            title: const Text('Reviews'),
+            title: Text(l10n?.reviews ?? 'Reviews'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderReviewsScreen()));
@@ -344,7 +347,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.history, color: AppTheme.primaryColor),
-            title: const Text('Subscription History'),
+            title: Text(l10n?.subscriptionHistory ?? 'Subscription History'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderSubscriptionsScreen()));
@@ -353,7 +356,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.person),
-            title: const Text('Profile Settings'),
+            title: Text(l10n?.profileSettings ?? 'Profile Settings'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ProviderProfileScreen()));
@@ -362,7 +365,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.report_problem, color: Colors.orange),
-            title: const Text('Submit Complaint'),
+            title: Text(l10n?.submitComplaint ?? 'Submit Complaint'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ComplaintScreen()));
@@ -370,7 +373,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.star_rate, color: Colors.amber),
-            title: const Text('Rate Platform'),
+            title: Text(l10n?.ratePlatform ?? 'Rate Platform'),
             onTap: () {
               Navigator.pop(context);
               showDialog(
@@ -384,7 +387,7 @@ class _ProviderDashboardScreenState extends State<ProviderDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
-            title: const Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            title: Text(l10n?.logout ?? 'Logout', style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
             onTap: () {
               context.read<AuthProvider>().logout();
               Navigator.of(context).pushAndRemoveUntil(

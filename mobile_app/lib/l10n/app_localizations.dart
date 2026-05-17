@@ -973,6 +973,822 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Waiting for provider acceptance...'**
   String get chatWaitingForAcceptanceHint;
+
+  /// No description provided for @providerDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider Dashboard'**
+  String get providerDashboard;
+
+  /// No description provided for @welcomeProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome, {name}'**
+  String welcomeProvider(Object name);
+
+  /// No description provided for @noStatsAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No stats available'**
+  String get noStatsAvailable;
+
+  /// No description provided for @addNewService.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Service'**
+  String get addNewService;
+
+  /// No description provided for @statPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get statPending;
+
+  /// No description provided for @statActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get statActive;
+
+  /// No description provided for @statCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get statCompleted;
+
+  /// No description provided for @statEarnings.
+  ///
+  /// In en, this message translates to:
+  /// **'Earnings'**
+  String get statEarnings;
+
+  /// No description provided for @etbAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'ETB {amount}'**
+  String etbAmount(Object amount);
+
+  /// No description provided for @activeSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Subscription'**
+  String get activeSubscription;
+
+  /// No description provided for @subscriptionInactive.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Inactive'**
+  String get subscriptionInactive;
+
+  /// No description provided for @expiresOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires on {date}'**
+  String expiresOn(Object date);
+
+  /// No description provided for @noActiveSubscription.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscription'**
+  String get noActiveSubscription;
+
+  /// No description provided for @renewEarly.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew Early'**
+  String get renewEarly;
+
+  /// No description provided for @renewNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Renew Now'**
+  String get renewNow;
+
+  /// No description provided for @dashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get dashboard;
+
+  /// No description provided for @myServices.
+  ///
+  /// In en, this message translates to:
+  /// **'My Services'**
+  String get myServices;
+
+  /// No description provided for @bookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Bookings'**
+  String get bookings;
+
+  /// No description provided for @messages.
+  ///
+  /// In en, this message translates to:
+  /// **'Messages'**
+  String get messages;
+
+  /// No description provided for @reviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviews'**
+  String get reviews;
+
+  /// No description provided for @subscriptionHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription History'**
+  String get subscriptionHistory;
+
+  /// No description provided for @profileSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Settings'**
+  String get profileSettings;
+
+  /// No description provided for @submitComplaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Complaint'**
+  String get submitComplaint;
+
+  /// No description provided for @ratePlatform.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate Platform'**
+  String get ratePlatform;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @paymentScreenError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not launch payment screen'**
+  String get paymentScreenError;
+
+  /// No description provided for @tabPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get tabPending;
+
+  /// No description provided for @tabActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get tabActive;
+
+  /// No description provided for @tabHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get tabHistory;
+
+  /// No description provided for @bookingCustomerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer: {name}'**
+  String bookingCustomerName(Object name);
+
+  /// No description provided for @bookingPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price: ETB {price}'**
+  String bookingPrice(Object price);
+
+  /// No description provided for @bookingNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note: {note}'**
+  String bookingNote(Object note);
+
+  /// No description provided for @actionReject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get actionReject;
+
+  /// No description provided for @actionAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Accept'**
+  String get actionAccept;
+
+  /// No description provided for @actionMarkCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as Completed'**
+  String get actionMarkCompleted;
+
+  /// No description provided for @bookingStatusUpdateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking {status} successfully'**
+  String bookingStatusUpdateSuccess(Object status);
+
+  /// No description provided for @customerReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Reviews'**
+  String get customerReviews;
+
+  /// No description provided for @customerReviewsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'See what your customers are saying about your services'**
+  String get customerReviewsSubtitle;
+
+  /// No description provided for @recentFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Feedback'**
+  String get recentFeedback;
+
+  /// No description provided for @sortNewestFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort: Newest First'**
+  String get sortNewestFirst;
+
+  /// No description provided for @noReviewsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews yet.'**
+  String get noReviewsYet;
+
+  /// No description provided for @overallRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall Rating'**
+  String get overallRating;
+
+  /// No description provided for @basedOnTotalReviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Based on {count} total reviews'**
+  String basedOnTotalReviews(Object count);
+
+  /// No description provided for @verifiedCustomer.
+  ///
+  /// In en, this message translates to:
+  /// **'Verified Customer'**
+  String get verifiedCustomer;
+
+  /// No description provided for @booked.
+  ///
+  /// In en, this message translates to:
+  /// **'Booked:'**
+  String get booked;
+
+  /// No description provided for @professionalService.
+  ///
+  /// In en, this message translates to:
+  /// **'Professional Service'**
+  String get professionalService;
+
+  /// No description provided for @noServicesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No services found.'**
+  String get noServicesFound;
+
+  /// No description provided for @addAService.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a Service'**
+  String get addAService;
+
+  /// No description provided for @editService.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Service'**
+  String get editService;
+
+  /// No description provided for @noSubscriptionPaymentsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No subscription payments found.'**
+  String get noSubscriptionPaymentsFound;
+
+  /// No description provided for @subscriptionRef.
+  ///
+  /// In en, this message translates to:
+  /// **'Ref: {ref}'**
+  String subscriptionRef(Object ref);
+
+  /// No description provided for @profilePhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get profilePhone;
+
+  /// No description provided for @profileBio.
+  ///
+  /// In en, this message translates to:
+  /// **'Bio'**
+  String get profileBio;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get fieldRequired;
+
+  /// No description provided for @addService.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Service'**
+  String get addService;
+
+  /// No description provided for @serviceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Service Title'**
+  String get serviceTitle;
+
+  /// No description provided for @pleaseEnterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a title'**
+  String get pleaseEnterTitle;
+
+  /// No description provided for @priceETB.
+  ///
+  /// In en, this message translates to:
+  /// **'Price (ETB)'**
+  String get priceETB;
+
+  /// No description provided for @pleaseEnterPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a price'**
+  String get pleaseEnterPrice;
+
+  /// No description provided for @pleaseEnterValidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number'**
+  String get pleaseEnterValidNumber;
+
+  /// No description provided for @serviceCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get serviceCategory;
+
+  /// No description provided for @pleaseSelectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a category'**
+  String get pleaseSelectCategory;
+
+  /// No description provided for @serviceDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get serviceDescription;
+
+  /// No description provided for @pleaseEnterDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a description'**
+  String get pleaseEnterDescription;
+
+  /// No description provided for @saveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChanges;
+
+  /// No description provided for @createService.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Service'**
+  String get createService;
+
+  /// No description provided for @serviceCreatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Service created successfully'**
+  String get serviceCreatedSuccess;
+
+  /// No description provided for @serviceUpdatedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Service updated successfully'**
+  String get serviceUpdatedSuccess;
+
+  /// No description provided for @adminDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Dashboard'**
+  String get adminDashboard;
+
+  /// No description provided for @platformOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Overview'**
+  String get platformOverview;
+
+  /// No description provided for @totalUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Users'**
+  String get totalUsers;
+
+  /// No description provided for @totalBookings.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Bookings'**
+  String get totalBookings;
+
+  /// No description provided for @activeJobs.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Jobs'**
+  String get activeJobs;
+
+  /// No description provided for @avgRating.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg Rating'**
+  String get avgRating;
+
+  /// No description provided for @totalPlatformRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Platform Revenue'**
+  String get totalPlatformRevenue;
+
+  /// No description provided for @quickManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Management'**
+  String get quickManagement;
+
+  /// No description provided for @manageCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Categories'**
+  String get manageCategories;
+
+  /// No description provided for @reviewComplaints.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Complaints'**
+  String get reviewComplaints;
+
+  /// No description provided for @admin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get admin;
+
+  /// No description provided for @userManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'User Management'**
+  String get userManagement;
+
+  /// No description provided for @subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions'**
+  String get subscriptions;
+
+  /// No description provided for @verification.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification'**
+  String get verification;
+
+  /// No description provided for @userDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'User Documents'**
+  String get userDocuments;
+
+  /// No description provided for @nationalId.
+  ///
+  /// In en, this message translates to:
+  /// **'National ID'**
+  String get nationalId;
+
+  /// No description provided for @verificationSelfie.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification Selfie'**
+  String get verificationSelfie;
+
+  /// No description provided for @educationalDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Educational Documents'**
+  String get educationalDocuments;
+
+  /// No description provided for @noDocumentsUploaded.
+  ///
+  /// In en, this message translates to:
+  /// **'No documents uploaded for this user.'**
+  String get noDocumentsUploaded;
+
+  /// No description provided for @openPdf.
+  ///
+  /// In en, this message translates to:
+  /// **'Open PDF'**
+  String get openPdf;
+
+  /// No description provided for @viewInApp.
+  ///
+  /// In en, this message translates to:
+  /// **'View In-App'**
+  String get viewInApp;
+
+  /// No description provided for @download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// No description provided for @errorFetchingData.
+  ///
+  /// In en, this message translates to:
+  /// **'Error fetching data:'**
+  String get errorFetchingData;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @noUsersFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No users found.'**
+  String get noUsersFound;
+
+  /// No description provided for @viewDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'View Documents'**
+  String get viewDocuments;
+
+  /// No description provided for @copyUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy URL'**
+  String get copyUrl;
+
+  /// No description provided for @bookingManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking Management'**
+  String get bookingManagement;
+
+  /// No description provided for @total.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get total;
+
+  /// No description provided for @active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get active;
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @customer.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer'**
+  String get customer;
+
+  /// No description provided for @price.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get price;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider'**
+  String get provider;
+
+  /// No description provided for @unassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get unassigned;
+
+  /// No description provided for @addNewCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Add New Category'**
+  String get addNewCategory;
+
+  /// No description provided for @categoryName.
+  ///
+  /// In en, this message translates to:
+  /// **'Category Name'**
+  String get categoryName;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @add.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get add;
+
+  /// No description provided for @categoryCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Category created!'**
+  String get categoryCreated;
+
+  /// No description provided for @providersInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'{category} Providers'**
+  String providersInCategory(Object category);
+
+  /// No description provided for @noProvidersFoundInCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'No providers found in this category.'**
+  String get noProvidersFoundInCategory;
+
+  /// No description provided for @ratingJobsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{rating} • {jobs} jobs'**
+  String ratingJobsCount(Object rating, Object jobs);
+
+  /// No description provided for @replyToComplaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply to: {subject}'**
+  String replyToComplaint(Object subject);
+
+  /// No description provided for @typeReplyHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your reply here...'**
+  String get typeReplyHere;
+
+  /// No description provided for @replySent.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply sent!'**
+  String get replySent;
+
+  /// No description provided for @sendReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Reply'**
+  String get sendReply;
+
+  /// No description provided for @byUser.
+  ///
+  /// In en, this message translates to:
+  /// **'By: {name}'**
+  String byUser(Object name);
+
+  /// No description provided for @adminReply.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin Reply:'**
+  String get adminReply;
+
+  /// No description provided for @replyAndResolve.
+  ///
+  /// In en, this message translates to:
+  /// **'Reply & Resolve'**
+  String get replyAndResolve;
+
+  /// No description provided for @subscriptionsAndRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscriptions & Revenue'**
+  String get subscriptionsAndRevenue;
+
+  /// No description provided for @recentPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Payments'**
+  String get recentPayments;
+
+  /// No description provided for @monthlyRevenue.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly Revenue'**
+  String get monthlyRevenue;
+
+  /// No description provided for @activePremium.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Premium'**
+  String get activePremium;
+
+  /// No description provided for @providerApprovedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider approved successfully'**
+  String get providerApprovedSuccess;
+
+  /// No description provided for @rejectProvider.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject Provider'**
+  String get rejectProvider;
+
+  /// No description provided for @reasonForRejection.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason for rejection'**
+  String get reasonForRejection;
+
+  /// No description provided for @providerRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider rejected'**
+  String get providerRejected;
+
+  /// No description provided for @reject.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get reject;
+
+  /// No description provided for @providerVerifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Provider Verifications'**
+  String get providerVerifications;
+
+  /// No description provided for @noPendingVerifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No pending verifications.'**
+  String get noPendingVerifications;
+
+  /// No description provided for @identityDocuments.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity Documents'**
+  String get identityDocuments;
+
+  /// No description provided for @selfie.
+  ///
+  /// In en, this message translates to:
+  /// **'Selfie'**
+  String get selfie;
+
+  /// No description provided for @approve.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve'**
+  String get approve;
+
+  /// No description provided for @pdfDocument.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF Document'**
+  String get pdfDocument;
+
+  /// No description provided for @external.
+  ///
+  /// In en, this message translates to:
+  /// **'External'**
+  String get external;
+
+  /// No description provided for @errorText.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String errorText(Object error);
 }
 
 class _AppLocalizationsDelegate

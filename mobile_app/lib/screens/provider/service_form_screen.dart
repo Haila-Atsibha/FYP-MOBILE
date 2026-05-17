@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class ServiceFormScreen extends StatefulWidget {
   final Service? service;
@@ -56,7 +57,7 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
     
     if (!_isEditing && _selectedCategoryId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a category')),
+        SnackBar(content: Text(AppLocalizations.of(context)?.pleaseSelectCategory ?? 'Please select a category')),
       );
       return;
     }
@@ -74,7 +75,7 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Service updated successfully')),
+            SnackBar(content: Text(AppLocalizations.of(context)?.serviceUpdatedSuccess ?? 'Service updated successfully')),
           );
           Navigator.pop(context, true);
         }
@@ -87,7 +88,7 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
         );
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Service created successfully')),
+            SnackBar(content: Text(AppLocalizations.of(context)?.serviceCreatedSuccess ?? 'Service created successfully')),
           );
           Navigator.pop(context, true);
         }
@@ -105,9 +106,10 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEditing ? 'Edit Service' : 'Add Service'),
+        title: Text(_isEditing ? (l10n?.editService ?? 'Edit Service') : (l10n?.addService ?? 'Add Service')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -118,23 +120,23 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Service Title',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n?.serviceTitle ?? 'Service Title',
+                  border: const OutlineInputBorder(),
                 ),
-                validator: (val) => val == null || val.isEmpty ? 'Please enter a title' : null,
+                validator: (val) => val == null || val.isEmpty ? (l10n?.pleaseEnterTitle ?? 'Please enter a title') : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: _priceController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: 'Price (ETB)',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n?.priceETB ?? 'Price (ETB)',
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (val) {
-                  if (val == null || val.isEmpty) return 'Please enter a price';
-                  if (double.tryParse(val) == null) return 'Please enter a valid number';
+                  if (val == null || val.isEmpty) return l10n?.pleaseEnterPrice ?? 'Please enter a price';
+                  if (double.tryParse(val) == null) return l10n?.pleaseEnterValidNumber ?? 'Please enter a valid number';
                   return null;
                 },
               ),
@@ -143,9 +145,9 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
                 _isLoadingCategories
                     ? const Center(child: CircularProgressIndicator())
                     : DropdownButtonFormField<int>(
-                        decoration: const InputDecoration(
-                          labelText: 'Category',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n?.serviceCategory ?? 'Category',
+                          border: const OutlineInputBorder(),
                         ),
                         value: _selectedCategoryId,
                         items: _categories.map((cat) {
@@ -157,19 +159,19 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
                         onChanged: (val) {
                           setState(() => _selectedCategoryId = val);
                         },
-                        validator: (val) => val == null ? 'Please select a category' : null,
+                        validator: (val) => val == null ? (l10n?.pleaseSelectCategory ?? 'Please select a category') : null,
                       ),
                 const SizedBox(height: 16),
               ],
               TextFormField(
                 controller: _descriptionController,
                 maxLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n?.serviceDescription ?? 'Description',
+                  border: const OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
-                validator: (val) => val == null || val.isEmpty ? 'Please enter a description' : null,
+                validator: (val) => val == null || val.isEmpty ? (l10n?.pleaseEnterDescription ?? 'Please enter a description') : null,
               ),
               const SizedBox(height: 32),
               SizedBox(
@@ -184,7 +186,7 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
                   child: _isLoading 
                       ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                       : Text(
-                          _isEditing ? 'Save Changes' : 'Create Service',
+                          _isEditing ? (l10n?.saveChanges ?? 'Save Changes') : (l10n?.createService ?? 'Create Service'),
                           style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                 ),

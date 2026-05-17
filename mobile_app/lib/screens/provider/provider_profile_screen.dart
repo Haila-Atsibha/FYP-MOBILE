@@ -7,6 +7,7 @@ import 'package:mobile_app/services/api_service.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class ProviderProfileScreen extends StatefulWidget {
   const ProviderProfileScreen({super.key});
@@ -71,7 +72,7 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
           final updatedUser = User.fromJson(response['user']);
           context.read<AuthProvider>().updateUser(updatedUser);
         }
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile updated successfully')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)?.profileUpdateSuccess ?? 'Profile updated successfully')));
       }
     } catch (e) {
       if (mounted) {
@@ -84,8 +85,9 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: AppBar(title: Text(l10n?.profileEdit ?? 'Edit Profile')),
       body: _isLoading 
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -132,21 +134,21 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                     const SizedBox(height: 24),
                     TextFormField(
                       controller: _nameController,
-                      decoration: const InputDecoration(labelText: 'Name'),
-                      validator: (v) => v!.isEmpty ? 'Required' : null,
+                      decoration: InputDecoration(labelText: l10n?.registerFullName ?? 'Name'),
+                      validator: (v) => v!.isEmpty ? (l10n?.fieldRequired ?? 'Required') : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _phoneController,
-                      decoration: const InputDecoration(labelText: 'Phone'),
-                      validator: (v) => v!.isEmpty ? 'Required' : null,
+                      decoration: InputDecoration(labelText: l10n?.profilePhone ?? 'Phone'),
+                      validator: (v) => v!.isEmpty ? (l10n?.fieldRequired ?? 'Required') : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _bioController,
-                      decoration: const InputDecoration(labelText: 'Bio'),
+                      decoration: InputDecoration(labelText: l10n?.profileBio ?? 'Bio'),
                       maxLines: 4,
-                      validator: (v) => v!.isEmpty ? 'Required' : null,
+                      validator: (v) => v!.isEmpty ? (l10n?.fieldRequired ?? 'Required') : null,
                     ),
                     const SizedBox(height: 32),
                     SizedBox(
@@ -154,9 +156,9 @@ class _ProviderProfileScreenState extends State<ProviderProfileScreen> {
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryColor),
                         onPressed: _submit,
-                        child: const Padding(
-                          padding: EdgeInsets.all(12.0),
-                          child: Text('Save Changes'),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Text(l10n?.profileSaveChanges ?? 'Save Changes'),
                         ),
                       ),
                     ),

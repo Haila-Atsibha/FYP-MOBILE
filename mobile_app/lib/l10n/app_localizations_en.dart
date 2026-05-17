@@ -459,4 +459,442 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get chatWaitingForAcceptanceHint =>
       'Waiting for provider acceptance...';
+
+  @override
+  String get providerDashboard => 'Provider Dashboard';
+
+  @override
+  String welcomeProvider(Object name) {
+    return 'Welcome, $name';
+  }
+
+  @override
+  String get noStatsAvailable => 'No stats available';
+
+  @override
+  String get addNewService => 'Add New Service';
+
+  @override
+  String get statPending => 'Pending';
+
+  @override
+  String get statActive => 'Active';
+
+  @override
+  String get statCompleted => 'Completed';
+
+  @override
+  String get statEarnings => 'Earnings';
+
+  @override
+  String etbAmount(Object amount) {
+    return 'ETB $amount';
+  }
+
+  @override
+  String get activeSubscription => 'Active Subscription';
+
+  @override
+  String get subscriptionInactive => 'Subscription Inactive';
+
+  @override
+  String expiresOn(Object date) {
+    return 'Expires on $date';
+  }
+
+  @override
+  String get noActiveSubscription => 'No active subscription';
+
+  @override
+  String get renewEarly => 'Renew Early';
+
+  @override
+  String get renewNow => 'Renew Now';
+
+  @override
+  String get dashboard => 'Dashboard';
+
+  @override
+  String get myServices => 'My Services';
+
+  @override
+  String get bookings => 'Bookings';
+
+  @override
+  String get messages => 'Messages';
+
+  @override
+  String get reviews => 'Reviews';
+
+  @override
+  String get subscriptionHistory => 'Subscription History';
+
+  @override
+  String get profileSettings => 'Profile Settings';
+
+  @override
+  String get submitComplaint => 'Submit Complaint';
+
+  @override
+  String get ratePlatform => 'Rate Platform';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get paymentScreenError => 'Could not launch payment screen';
+
+  @override
+  String get tabPending => 'Pending';
+
+  @override
+  String get tabActive => 'Active';
+
+  @override
+  String get tabHistory => 'History';
+
+  @override
+  String bookingCustomerName(Object name) {
+    return 'Customer: $name';
+  }
+
+  @override
+  String bookingPrice(Object price) {
+    return 'Price: ETB $price';
+  }
+
+  @override
+  String bookingNote(Object note) {
+    return 'Note: $note';
+  }
+
+  @override
+  String get actionReject => 'Reject';
+
+  @override
+  String get actionAccept => 'Accept';
+
+  @override
+  String get actionMarkCompleted => 'Mark as Completed';
+
+  @override
+  String bookingStatusUpdateSuccess(Object status) {
+    return 'Booking $status successfully';
+  }
+
+  @override
+  String get customerReviews => 'Customer Reviews';
+
+  @override
+  String get customerReviewsSubtitle =>
+      'See what your customers are saying about your services';
+
+  @override
+  String get recentFeedback => 'Recent Feedback';
+
+  @override
+  String get sortNewestFirst => 'Sort: Newest First';
+
+  @override
+  String get noReviewsYet => 'No reviews yet.';
+
+  @override
+  String get overallRating => 'Overall Rating';
+
+  @override
+  String basedOnTotalReviews(Object count) {
+    return 'Based on $count total reviews';
+  }
+
+  @override
+  String get verifiedCustomer => 'Verified Customer';
+
+  @override
+  String get booked => 'Booked:';
+
+  @override
+  String get professionalService => 'Professional Service';
+
+  @override
+  String get noServicesFound => 'No services found.';
+
+  @override
+  String get addAService => 'Add a Service';
+
+  @override
+  String get editService => 'Edit Service';
+
+  @override
+  String get noSubscriptionPaymentsFound => 'No subscription payments found.';
+
+  @override
+  String subscriptionRef(Object ref) {
+    return 'Ref: $ref';
+  }
+
+  @override
+  String get profilePhone => 'Phone';
+
+  @override
+  String get profileBio => 'Bio';
+
+  @override
+  String get fieldRequired => 'Required';
+
+  @override
+  String get addService => 'Add Service';
+
+  @override
+  String get serviceTitle => 'Service Title';
+
+  @override
+  String get pleaseEnterTitle => 'Please enter a title';
+
+  @override
+  String get priceETB => 'Price (ETB)';
+
+  @override
+  String get pleaseEnterPrice => 'Please enter a price';
+
+  @override
+  String get pleaseEnterValidNumber => 'Please enter a valid number';
+
+  @override
+  String get serviceCategory => 'Category';
+
+  @override
+  String get pleaseSelectCategory => 'Please select a category';
+
+  @override
+  String get serviceDescription => 'Description';
+
+  @override
+  String get pleaseEnterDescription => 'Please enter a description';
+
+  @override
+  String get saveChanges => 'Save Changes';
+
+  @override
+  String get createService => 'Create Service';
+
+  @override
+  String get serviceCreatedSuccess => 'Service created successfully';
+
+  @override
+  String get serviceUpdatedSuccess => 'Service updated successfully';
+
+  @override
+  String get adminDashboard => 'Admin Dashboard';
+
+  @override
+  String get platformOverview => 'Platform Overview';
+
+  @override
+  String get totalUsers => 'Total Users';
+
+  @override
+  String get totalBookings => 'Total Bookings';
+
+  @override
+  String get activeJobs => 'Active Jobs';
+
+  @override
+  String get avgRating => 'Avg Rating';
+
+  @override
+  String get totalPlatformRevenue => 'Total Platform Revenue';
+
+  @override
+  String get quickManagement => 'Quick Management';
+
+  @override
+  String get manageCategories => 'Manage Categories';
+
+  @override
+  String get reviewComplaints => 'Review Complaints';
+
+  @override
+  String get admin => 'Admin';
+
+  @override
+  String get userManagement => 'User Management';
+
+  @override
+  String get subscriptions => 'Subscriptions';
+
+  @override
+  String get verification => 'Verification';
+
+  @override
+  String get userDocuments => 'User Documents';
+
+  @override
+  String get nationalId => 'National ID';
+
+  @override
+  String get verificationSelfie => 'Verification Selfie';
+
+  @override
+  String get educationalDocuments => 'Educational Documents';
+
+  @override
+  String get noDocumentsUploaded => 'No documents uploaded for this user.';
+
+  @override
+  String get openPdf => 'Open PDF';
+
+  @override
+  String get viewInApp => 'View In-App';
+
+  @override
+  String get download => 'Download';
+
+  @override
+  String get errorFetchingData => 'Error fetching data:';
+
+  @override
+  String get retry => 'Retry';
+
+  @override
+  String get noUsersFound => 'No users found.';
+
+  @override
+  String get viewDocuments => 'View Documents';
+
+  @override
+  String get copyUrl => 'Copy URL';
+
+  @override
+  String get bookingManagement => 'Booking Management';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get active => 'Active';
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get customer => 'Customer';
+
+  @override
+  String get price => 'Price';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get provider => 'Provider';
+
+  @override
+  String get unassigned => 'Unassigned';
+
+  @override
+  String get addNewCategory => 'Add New Category';
+
+  @override
+  String get categoryName => 'Category Name';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get add => 'Add';
+
+  @override
+  String get categoryCreated => 'Category created!';
+
+  @override
+  String providersInCategory(Object category) {
+    return '$category Providers';
+  }
+
+  @override
+  String get noProvidersFoundInCategory =>
+      'No providers found in this category.';
+
+  @override
+  String ratingJobsCount(Object rating, Object jobs) {
+    return '$rating • $jobs jobs';
+  }
+
+  @override
+  String replyToComplaint(Object subject) {
+    return 'Reply to: $subject';
+  }
+
+  @override
+  String get typeReplyHere => 'Type your reply here...';
+
+  @override
+  String get replySent => 'Reply sent!';
+
+  @override
+  String get sendReply => 'Send Reply';
+
+  @override
+  String byUser(Object name) {
+    return 'By: $name';
+  }
+
+  @override
+  String get adminReply => 'Admin Reply:';
+
+  @override
+  String get replyAndResolve => 'Reply & Resolve';
+
+  @override
+  String get subscriptionsAndRevenue => 'Subscriptions & Revenue';
+
+  @override
+  String get recentPayments => 'Recent Payments';
+
+  @override
+  String get monthlyRevenue => 'Monthly Revenue';
+
+  @override
+  String get activePremium => 'Active Premium';
+
+  @override
+  String get providerApprovedSuccess => 'Provider approved successfully';
+
+  @override
+  String get rejectProvider => 'Reject Provider';
+
+  @override
+  String get reasonForRejection => 'Reason for rejection';
+
+  @override
+  String get providerRejected => 'Provider rejected';
+
+  @override
+  String get reject => 'Reject';
+
+  @override
+  String get providerVerifications => 'Provider Verifications';
+
+  @override
+  String get noPendingVerifications => 'No pending verifications.';
+
+  @override
+  String get identityDocuments => 'Identity Documents';
+
+  @override
+  String get selfie => 'Selfie';
+
+  @override
+  String get approve => 'Approve';
+
+  @override
+  String get pdfDocument => 'PDF Document';
+
+  @override
+  String get external => 'External';
+
+  @override
+  String errorText(Object error) {
+    return 'Error: $error';
+  }
 }

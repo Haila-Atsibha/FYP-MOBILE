@@ -145,5 +145,212 @@
   "chatClosedMessageNoticePrefix": "Messaging is closed for this ",
   "chatClosedMessageNoticeSuffix": " booking.",
   "chatTypeMessageHint": "Type a message...",
-  "chatWaitingForAcceptanceHint": "Waiting for provider acceptance..."
+  "chatWaitingForAcceptanceHint": "Waiting for provider acceptance...",
+  "providerDashboard": "Provider Dashboard",
+  "welcomeProvider": "Welcome, {name}",
+  "@welcomeProvider": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "noStatsAvailable": "No stats available",
+  "addNewService": "Add New Service",
+  "statPending": "Pending",
+  "statActive": "Active",
+  "statCompleted": "Completed",
+  "statEarnings": "Earnings",
+  "etbAmount": "ETB {amount}",
+  "@etbAmount": {
+    "placeholders": {
+      "amount": {}
+    }
+  },
+  "activeSubscription": "Active Subscription",
+  "subscriptionInactive": "Subscription Inactive",
+  "expiresOn": "Expires on {date}",
+  "@expiresOn": {
+    "placeholders": {
+      "date": {}
+    }
+  },
+  "noActiveSubscription": "No active subscription",
+  "renewEarly": "Renew Early",
+  "renewNow": "Renew Now",
+  "dashboard": "Dashboard",
+  "myServices": "My Services",
+  "bookings": "Bookings",
+  "messages": "Messages",
+  "reviews": "Reviews",
+  "subscriptionHistory": "Subscription History",
+  "profileSettings": "Profile Settings",
+  "submitComplaint": "Submit Complaint",
+  "ratePlatform": "Rate Platform",
+  "logout": "Logout",
+  "paymentScreenError": "Could not launch payment screen",
+  "tabPending": "Pending",
+  "tabActive": "Active",
+  "tabHistory": "History",
+  "bookingCustomerName": "Customer: {name}",
+  "@bookingCustomerName": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "bookingPrice": "Price: ETB {price}",
+  "@bookingPrice": {
+    "placeholders": {
+      "price": {}
+    }
+  },
+  "bookingNote": "Note: {note}",
+  "@bookingNote": {
+    "placeholders": {
+      "note": {}
+    }
+  },
+  "actionReject": "Reject",
+  "actionAccept": "Accept",
+  "actionMarkCompleted": "Mark as Completed",
+  "bookingStatusUpdateSuccess": "Booking {status} successfully",
+  "@bookingStatusUpdateSuccess": {
+    "placeholders": {
+      "status": {}
+    }
+  },
+  "customerReviews": "Customer Reviews",
+  "customerReviewsSubtitle": "See what your customers are saying about your services",
+  "recentFeedback": "Recent Feedback",
+  "sortNewestFirst": "Sort: Newest First",
+  "noReviewsYet": "No reviews yet.",
+  "overallRating": "Overall Rating",
+  "basedOnTotalReviews": "Based on {count} total reviews",
+  "@basedOnTotalReviews": {
+    "placeholders": {
+      "count": {}
+    }
+  },
+  "verifiedCustomer": "Verified Customer",
+  "booked": "Booked:",
+  "professionalService": "Professional Service",
+  "noServicesFound": "No services found.",
+  "addAService": "Add a Service",
+  "editService": "Edit Service",
+  "noSubscriptionPaymentsFound": "No subscription payments found.",
+  "subscriptionRef": "Ref: {ref}",
+  "@subscriptionRef": {
+    "placeholders": {
+      "ref": {}
+    }
+  },
+  "profilePhone": "Phone",
+  "profileBio": "Bio",
+  "fieldRequired": "Required",
+  "addService": "Add Service",
+  "serviceTitle": "Service Title",
+  "pleaseEnterTitle": "Please enter a title",
+  "priceETB": "Price (ETB)",
+  "pleaseEnterPrice": "Please enter a price",
+  "pleaseEnterValidNumber": "Please enter a valid number",
+  "serviceCategory": "Category",
+  "pleaseSelectCategory": "Please select a category",
+  "serviceDescription": "Description",
+  "pleaseEnterDescription": "Please enter a description",
+  "saveChanges": "Save Changes",
+  "createService": "Create Service",
+  "serviceCreatedSuccess": "Service created successfully",
+  "serviceUpdatedSuccess": "Service updated successfully",
+  "adminDashboard": "Admin Dashboard",
+  "platformOverview": "Platform Overview",
+  "totalUsers": "Total Users",
+  "totalBookings": "Total Bookings",
+  "activeJobs": "Active Jobs",
+  "avgRating": "Avg Rating",
+  "totalPlatformRevenue": "Total Platform Revenue",
+  "quickManagement": "Quick Management",
+  "manageCategories": "Manage Categories",
+  "reviewComplaints": "Review Complaints",
+  "admin": "Admin",
+  "userManagement": "User Management",
+  "subscriptions": "Subscriptions",
+  "verification": "Verification",
+  "userDocuments": "User Documents",
+  "nationalId": "National ID",
+  "verificationSelfie": "Verification Selfie",
+  "educationalDocuments": "Educational Documents",
+  "noDocumentsUploaded": "No documents uploaded for this user.",
+  "openPdf": "Open PDF",
+  "viewInApp": "View In-App",
+  "download": "Download",
+  "errorFetchingData": "Error fetching data:",
+  "retry": "Retry",
+  "noUsersFound": "No users found.",
+  "viewDocuments": "View Documents",
+  "copyUrl": "Copy URL",
+  "bookingManagement": "Booking Management",
+  "total": "Total",
+  "active": "Active",
+  "done": "Done",
+  "customer": "Customer",
+  "price": "Price",
+  "date": "Date",
+  "provider": "Provider",
+  "unassigned": "Unassigned",
+  "addNewCategory": "Add New Category",
+  "categoryName": "Category Name",
+  "cancel": "Cancel",
+  "add": "Add",
+  "categoryCreated": "Category created!",
+  "providersInCategory": "{category} Providers",
+  "@providersInCategory": {
+    "placeholders": {
+      "category": {}
+    }
+  },
+  "noProvidersFoundInCategory": "No providers found in this category.",
+  "ratingJobsCount": "{rating} • {jobs} jobs",
+  "@ratingJobsCount": {
+    "placeholders": {
+      "rating": {},
+      "jobs": {}
+    }
+  },
+  "replyToComplaint": "Reply to: {subject}",
+  "@replyToComplaint": {
+    "placeholders": {
+      "subject": {}
+    }
+  },
+  "typeReplyHere": "Type your reply here...",
+  "replySent": "Reply sent!",
+  "sendReply": "Send Reply",
+  "byUser": "By: {name}",
+  "@byUser": {
+    "placeholders": {
+      "name": {}
+    }
+  },
+  "adminReply": "Admin Reply:",
+  "replyAndResolve": "Reply & Resolve",
+  "subscriptionsAndRevenue": "Subscriptions & Revenue",
+  "recentPayments": "Recent Payments",
+  "monthlyRevenue": "Monthly Revenue",
+  "activePremium": "Active Premium",
+  "providerApprovedSuccess": "Provider approved successfully",
+  "rejectProvider": "Reject Provider",
+  "reasonForRejection": "Reason for rejection",
+  "providerRejected": "Provider rejected",
+  "reject": "Reject",
+  "providerVerifications": "Provider Verifications",
+  "noPendingVerifications": "No pending verifications.",
+  "identityDocuments": "Identity Documents",
+  "selfie": "Selfie",
+  "approve": "Approve",
+  "pdfDocument": "PDF Document",
+  "external": "External",
+  "errorText": "Error: {error}",
+  "@errorText": {
+    "placeholders": {
+      "error": {}
+    }
+  }
 }

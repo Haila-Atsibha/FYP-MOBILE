@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class AdminSubscriptionsScreen extends StatefulWidget {
   const AdminSubscriptionsScreen({super.key});
@@ -28,8 +29,9 @@ class _AdminSubscriptionsScreenState extends State<AdminSubscriptionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Subscriptions & Revenue')),
+      appBar: AppBar(title: Text(l10n?.subscriptionsAndRevenue ?? 'Subscriptions & Revenue')),
       body: FutureBuilder<AdminSubscriptionData>(
         future: _subFuture,
         builder: (context, snapshot) {
@@ -41,14 +43,14 @@ class _AdminSubscriptionsScreenState extends State<AdminSubscriptionsScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, color: Colors.red, size: 48),
+                  const Icon(Icons.error_outline, color: Colors.red, size: 48),
                   const SizedBox(height: 16),
-                  Text('Error fetching data:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(l10n?.errorFetchingData ?? 'Error fetching data:', style: const TextStyle(fontWeight: FontWeight.bold)),
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Text(snapshot.error.toString(), textAlign: TextAlign.center),
                   ),
-                  ElevatedButton(onPressed: _loadSubs, child: const Text('Retry')),
+                  ElevatedButton(onPressed: _loadSubs, child: Text(l10n?.retry ?? 'Retry')),
                 ],
               ),
             );
@@ -60,9 +62,9 @@ class _AdminSubscriptionsScreenState extends State<AdminSubscriptionsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildSummaryCards(data),
+                _buildSummaryCards(context, data),
                 const SizedBox(height: 24),
-                const Text('Recent Payments', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(l10n?.recentPayments ?? 'Recent Payments', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 ListView.builder(
                   shrinkWrap: true,
@@ -102,12 +104,13 @@ class _AdminSubscriptionsScreenState extends State<AdminSubscriptionsScreen> {
     );
   }
 
-  Widget _buildSummaryCards(AdminSubscriptionData data) {
+  Widget _buildSummaryCards(BuildContext context, AdminSubscriptionData data) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
           child: _buildInfoCard(
-            'Monthly Revenue',
+            l10n?.monthlyRevenue ?? 'Monthly Revenue',
             'ETB ${data.monthlyRevenue.toStringAsFixed(0)}',
             Icons.monetization_on,
             Colors.green,
@@ -116,7 +119,7 @@ class _AdminSubscriptionsScreenState extends State<AdminSubscriptionsScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: _buildInfoCard(
-            'Active Premium',
+            l10n?.activePremium ?? 'Active Premium',
             data.activePremium.toString(),
             Icons.star,
             Colors.amber,

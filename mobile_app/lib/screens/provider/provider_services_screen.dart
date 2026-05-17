@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:mobile_app/screens/provider/service_form_screen.dart';
 
 class ProviderServicesScreen extends StatefulWidget {
@@ -29,9 +30,10 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Services'),
+        title: Text(l10n?.myServices ?? 'My Services'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -68,7 +70,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                   children: [
                     const Icon(Icons.build_circle_outlined, size: 64, color: Colors.grey),
                     const SizedBox(height: 16),
-                    const Text('No services found.', style: TextStyle(color: Colors.grey)),
+                    Text(l10n?.noServicesFound ?? 'No services found.', style: const TextStyle(color: Colors.grey)),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -84,7 +86,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                           _loadServices();
                         }
                       },
-                      child: const Text('Add a Service', style: TextStyle(color: Colors.white)),
+                      child: Text(l10n?.addAService ?? 'Add a Service', style: const TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
@@ -116,7 +118,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                               ),
                             ),
                             Text(
-                              'ETB ${service.price.toStringAsFixed(0)}',
+                              l10n?.etbAmount(service.price.toStringAsFixed(0)) ?? 'ETB ${service.price.toStringAsFixed(0)}',
                               style: const TextStyle(fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                             ),
                           ],
@@ -146,7 +148,7 @@ class _ProviderServicesScreenState extends State<ProviderServicesScreen> {
                               }
                             },
                             icon: const Icon(Icons.edit, size: 16),
-                            label: const Text('Edit Service'),
+                            label: Text(l10n?.editService ?? 'Edit Service'),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: AppTheme.primaryColor,
                               side: const BorderSide(color: AppTheme.primaryColor),

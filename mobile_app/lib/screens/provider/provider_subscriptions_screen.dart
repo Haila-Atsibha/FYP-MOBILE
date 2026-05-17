@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class ProviderSubscriptionsScreen extends StatefulWidget {
   const ProviderSubscriptionsScreen({super.key});
@@ -22,9 +23,10 @@ class _ProviderSubscriptionsScreenState extends State<ProviderSubscriptionsScree
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Subscription History'),
+        title: Text(l10n?.subscriptionHistory ?? 'Subscription History'),
       ),
       body: FutureBuilder<List<PaymentTransaction>>(
         future: _historyFuture,
@@ -34,7 +36,7 @@ class _ProviderSubscriptionsScreenState extends State<ProviderSubscriptionsScree
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}', style: const TextStyle(color: Colors.red)));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No subscription payments found.'));
+            return Center(child: Text(l10n?.noSubscriptionPaymentsFound ?? 'No subscription payments found.'));
           }
 
           final history = snapshot.data!;
@@ -53,8 +55,8 @@ class _ProviderSubscriptionsScreenState extends State<ProviderSubscriptionsScree
                     color: isSuccess ? Colors.green : Colors.red,
                   ),
                 ),
-                title: Text('ETB ${tx.amount.toStringAsFixed(2)}'),
-                subtitle: Text('Ref: ${tx.txRef}\n${tx.createdAt.toLocal().toString().split('.')[0]}'),
+                title: Text(l10n?.etbAmount(tx.amount.toStringAsFixed(2)) ?? 'ETB ${tx.amount.toStringAsFixed(2)}'),
+                subtitle: Text('${l10n?.subscriptionRef(tx.txRef) ?? "Ref: " + tx.txRef}\n${tx.createdAt.toLocal().toString().split('.')[0]}'),
                 isThreeLine: true,
                 trailing: Text(
                   tx.status.toUpperCase(),

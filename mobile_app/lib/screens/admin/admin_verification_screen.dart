@@ -4,6 +4,7 @@ import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 import 'full_screen_image_viewer.dart';
 
 class AdminVerificationScreen extends StatefulWidget {
@@ -38,50 +39,53 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(content: Text(l10n?.errorText(e.toString()) ?? 'Error: ${e.toString()}')),
         );
       }
     }
   }
 
   void _handleApprove(String id) async {
+    final l10n = AppLocalizations.of(context);
     try {
       await context.read<ApiService>().approveProvider(id);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Provider approved successfully')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n?.providerApprovedSuccess ?? 'Provider approved successfully')));
       _loadVerifications();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n?.errorText(e.toString()) ?? 'Error: $e')));
     }
   }
 
   void _handleReject(String id) async {
+    final l10n = AppLocalizations.of(context);
     final reasonController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Reject Provider'),
+        title: Text(l10n?.rejectProvider ?? 'Reject Provider'),
         content: SingleChildScrollView(
           child: TextField(
             controller: reasonController,
-            decoration: const InputDecoration(hintText: 'Reason for rejection'),
+            decoration: InputDecoration(hintText: l10n?.reasonForRejection ?? 'Reason for rejection'),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n?.cancel ?? 'Cancel')),
           TextButton(
             onPressed: () async {
               if (reasonController.text.isEmpty) return;
               Navigator.pop(context);
               try {
                 await context.read<ApiService>().rejectProvider(id, reasonController.text);
-                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Provider rejected')));
+                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n?.providerRejected ?? 'Provider rejected')));
                 _loadVerifications();
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n?.errorText(e.toString()) ?? 'Error: $e')));
               }
             },
-            child: const Text('Reject', style: TextStyle(color: Colors.red)),
+            child: Text(l10n?.reject ?? 'Reject', style: const TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -97,8 +101,9 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Provider Verifications')),
+      appBar: AppBar(title: Text(l10n?.providerVerifications ?? 'Provider Verifications')),
       body: FutureBuilder<List<VerificationUser>>(
         future: _verificationsFuture,
         builder: (context, snapshot) {
@@ -106,11 +111,11 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text(l10n?.errorText(snapshot.error.toString()) ?? 'Error: ${snapshot.error}'));
           }
           final users = snapshot.data ?? [];
           if (users.isEmpty) {
-            return const Center(child: Text('No pending verifications.'));
+            return Center(child: Text(l10n?.noPendingVerifications ?? 'No pending verifications.'));
           }
 
           return ListView.builder(
@@ -135,20 +140,20 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
                         subtitle: Text(user.email),
                       ),
                       const Divider(),
-                      const Text('Identity Documents', style: TextStyle(fontWeight: FontWeight.bold)),
+                      Text(l10n?.identityDocuments ?? 'Identity Documents', style: const TextStyle(fontWeight: FontWeight.bold)),
                       const SizedBox(height: 8),
                       Row(
                         children: [
                           if (user.nationalIdUrl != null)
-                             _buildDocPreview('National ID', user.nationalIdUrl!),
+                             _buildDocPreview(l10n?.nationalId ?? 'National ID', user.nationalIdUrl!),
                           const SizedBox(width: 8),
                           if (user.selfieUrl != null)
-                             _buildDocPreview('Selfie', user.selfieUrl!),
+                             _buildDocPreview(l10n?.selfie ?? 'Selfie', user.selfieUrl!),
                         ],
                       ),
                       if (user.educationalDocuments != null && user.educationalDocuments!.isNotEmpty) ...[
                         const SizedBox(height: 16),
-                        const Text('Educational Documents', style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text(l10n?.educationalDocuments ?? 'Educational Documents', style: const TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(height: 8),
                           ...user.educationalDocuments!.map((doc) => ListTile(
                             contentPadding: EdgeInsets.zero,
@@ -187,7 +192,7 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                               onPressed: () => _handleApprove(user.id),
-                              child: const Text('Approve'),
+                              child: Text(l10n?.approve ?? 'Approve'),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -195,7 +200,7 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
                             child: OutlinedButton(
                               style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
                               onPressed: () => _handleReject(user.id),
-                              child: const Text('Reject'),
+                              child: Text(l10n?.reject ?? 'Reject'),
                             ),
                           ),
                         ],
@@ -240,13 +245,13 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
                 fit: StackFit.expand,
                 children: [
                   _isPdf(url)
-                      ? const Center(
+                      ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.picture_as_pdf, color: Colors.red, size: 40),
-                              SizedBox(height: 4),
-                              Text('PDF Document', style: TextStyle(fontSize: 10, color: Colors.grey)),
+                              const Icon(Icons.picture_as_pdf, color: Colors.red, size: 40),
+                              const SizedBox(height: 4),
+                              Text(AppLocalizations.of(context)?.pdfDocument ?? 'PDF Document', style: const TextStyle(fontSize: 10, color: Colors.grey)),
                             ],
                           ),
                         )
@@ -298,7 +303,7 @@ class _AdminVerificationScreenState extends State<AdminVerificationScreen> {
           TextButton.icon(
             onPressed: () => _openUrl(url),
             icon: const Icon(Icons.open_in_new, size: 14),
-            label: const Text('External', style: TextStyle(fontSize: 10)),
+            label: Text(AppLocalizations.of(context)?.external ?? 'External', style: const TextStyle(fontSize: 10)),
             style: TextButton.styleFrom(
               padding: EdgeInsets.zero,
               minimumSize: const Size(0, 30),

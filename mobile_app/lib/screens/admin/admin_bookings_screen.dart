@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class AdminBookingsScreen extends StatefulWidget {
   const AdminBookingsScreen({super.key});
@@ -28,10 +29,11 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppTheme.backgroundColor,
       appBar: AppBar(
-        title: const Text('Booking Management'),
+        title: Text(l10n?.bookingManagement ?? 'Booking Management'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -52,8 +54,8 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
                 children: [
                   const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
-                  Text('Error: ${snapshot.error}'),
-                  TextButton(onPressed: _loadBookings, child: const Text('Retry')),
+                  Text(l10n?.errorText(snapshot.error.toString()) ?? 'Error: ${snapshot.error}'),
+                  TextButton(onPressed: _loadBookings, child: Text(l10n?.retry ?? 'Retry')),
                 ],
               ),
             );
@@ -66,7 +68,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
               _buildSummaryHeader(bookings),
               Expanded(
                 child: bookings.isEmpty
-                    ? const Center(child: Text('No bookings found.'))
+                    ? Center(child: Text(l10n?.bookNoBookings ?? 'No bookings found.'))
                     : ListView.builder(
                         padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                         itemCount: bookings.length,
@@ -83,6 +85,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
   }
 
   Widget _buildSummaryHeader(List<Booking> bookings) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -91,9 +94,9 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
       ),
       child: Row(
         children: [
-          _buildStatItem('Total', bookings.length.toString(), Icons.book_online_outlined, AppTheme.primaryColor),
-          _buildStatItem('Active', bookings.where((b) => b.status.toLowerCase() == 'accepted' || b.status.toLowerCase() == 'pending').length.toString(), Icons.pending_actions, Colors.orange),
-          _buildStatItem('Done', bookings.where((b) => b.status.toLowerCase() == 'completed').length.toString(), Icons.check_circle_outline, Colors.green),
+          _buildStatItem(l10n?.total ?? 'Total', bookings.length.toString(), Icons.book_online_outlined, AppTheme.primaryColor),
+          _buildStatItem(l10n?.active ?? 'Active', bookings.where((b) => b.status.toLowerCase() == 'accepted' || b.status.toLowerCase() == 'pending').length.toString(), Icons.pending_actions, Colors.orange),
+          _buildStatItem(l10n?.done ?? 'Done', bookings.where((b) => b.status.toLowerCase() == 'completed').length.toString(), Icons.check_circle_outline, Colors.green),
         ],
       ),
     );
@@ -113,6 +116,7 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
   }
 
   Widget _buildBookingCard(Booking booking) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
@@ -160,15 +164,15 @@ class _AdminBookingsScreenState extends State<AdminBookingsScreen> {
             ),
             Row(
               children: [
-                _buildInfoBlock('Customer', booking.customerName ?? 'N/A', Icons.person_outline),
-                _buildInfoBlock('Price', 'ETB ${booking.totalPrice?.toStringAsFixed(0) ?? "0"}', Icons.payments_outlined),
+                _buildInfoBlock(l10n?.customer ?? 'Customer', booking.customerName ?? 'N/A', Icons.person_outline),
+                _buildInfoBlock(l10n?.price ?? 'Price', 'ETB ${booking.totalPrice?.toStringAsFixed(0) ?? "0"}', Icons.payments_outlined),
               ],
             ),
             const SizedBox(height: 12),
             Row(
               children: [
-                _buildInfoBlock('Date', booking.createdAt.toLocal().toString().split(' ')[0], Icons.calendar_today_outlined),
-                _buildInfoBlock('Provider', booking.providerName ?? 'Unassigned', Icons.engineering_outlined),
+                _buildInfoBlock(l10n?.date ?? 'Date', booking.createdAt.toLocal().toString().split(' ')[0], Icons.calendar_today_outlined),
+                _buildInfoBlock(l10n?.provider ?? 'Provider', booking.providerName ?? (l10n?.unassigned ?? 'Unassigned'), Icons.engineering_outlined),
               ],
             ),
           ],

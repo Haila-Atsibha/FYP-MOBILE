@@ -42,7 +42,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: Text(AppLocalizations.of(context)?.adminDashboard ?? 'Admin Dashboard'),
         actions: [
           TextButton(
             onPressed: () {
@@ -78,7 +78,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Platform Overview',
+                AppLocalizations.of(context)?.platformOverview ?? 'Platform Overview',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -91,10 +91,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     return const Center(child: CircularProgressIndicator());
                   }
                   if (snapshot.hasError) {
-                    return Center(child: Text('Error: ${snapshot.error}'));
+                    return Center(child: Text(AppLocalizations.of(context)?.errorText(snapshot.error.toString()) ?? 'Error: ${snapshot.error}'));
                   }
                   if (!snapshot.hasData) {
-                    return const Center(child: Text('No stats available'));
+                    return Center(child: Text(AppLocalizations.of(context)?.noStatsAvailable ?? 'No stats available'));
                   }
 
                   final stats = snapshot.data!;
@@ -126,28 +126,28 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       childAspectRatio: 1.5,
       children: [
         _buildStatCard(
-          'Total Users',
+          AppLocalizations.of(context)?.totalUsers ?? 'Total Users',
           stats.totalUsers.toString(),
           Icons.people,
           Colors.blue,
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminUsersScreen())),
         ),
         _buildStatCard(
-          'Total Bookings',
+          AppLocalizations.of(context)?.totalBookings ?? 'Total Bookings',
           stats.totalBookings.toString(),
           Icons.book,
           Colors.orange,
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminBookingsScreen())),
         ),
         _buildStatCard(
-          'Active Jobs',
+          AppLocalizations.of(context)?.activeJobs ?? 'Active Jobs',
           stats.activeBookings.toString(),
           Icons.hourglass_top,
           Colors.indigo,
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminBookingsScreen())),
         ),
         _buildStatCard(
-          'Avg Rating',
+          AppLocalizations.of(context)?.avgRating ?? 'Avg Rating',
           stats.avgRating,
           Icons.star,
           Colors.amber,
@@ -202,7 +202,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Total Platform Revenue', style: TextStyle(fontSize: 14, color: Colors.grey)),
+                Text(AppLocalizations.of(context)?.totalPlatformRevenue ?? 'Total Platform Revenue', style: const TextStyle(fontSize: 14, color: Colors.grey)),
                 Text(
                   'ETB ${stats.totalRevenue.toStringAsFixed(2)}',
                   style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
@@ -219,13 +219,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Quick Management', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+        Text(AppLocalizations.of(context)?.quickManagement ?? 'Quick Management', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         ListTile(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           tileColor: Colors.grey.shade100,
           leading: const Icon(Icons.category, color: Colors.pink),
-          title: const Text('Manage Categories'),
+          title: Text(AppLocalizations.of(context)?.manageCategories ?? 'Manage Categories'),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminCategoriesScreen())),
         ),
@@ -234,7 +234,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           tileColor: Colors.grey.shade100,
           leading: const Icon(Icons.report_problem, color: Colors.red),
-          title: const Text('Review Complaints'),
+          title: Text(AppLocalizations.of(context)?.reviewComplaints ?? 'Review Complaints'),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminComplaintsScreen())),
         ),
@@ -248,7 +248,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-            accountName: Text(user?.name ?? 'Admin'),
+            accountName: Text(user?.name ?? (AppLocalizations.of(context)?.admin ?? 'Admin')),
             accountEmail: Text(user?.email ?? ''),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
@@ -261,12 +261,12 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.dashboard),
-            title: const Text('Dashboard'),
+            title: Text(AppLocalizations.of(context)?.dashboard ?? 'Dashboard'),
             onTap: () => Navigator.pop(context),
           ),
           ListTile(
             leading: const Icon(Icons.book),
-            title: const Text('Bookings'),
+            title: Text(AppLocalizations.of(context)?.bookings ?? 'Bookings'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminBookingsScreen()));
@@ -274,7 +274,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.report_problem),
-            title: const Text('Complaints'),
+            title: Text(AppLocalizations.of(context)?.complaintReportTitle ?? 'Complaints'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminComplaintsScreen()));
@@ -282,7 +282,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.category),
-            title: const Text('Categories'),
+            title: Text(AppLocalizations.of(context)?.serviceCategories ?? 'Categories'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminCategoriesScreen()));
@@ -290,7 +290,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.people),
-            title: const Text('User Management'),
+            title: Text(AppLocalizations.of(context)?.userManagement ?? 'User Management'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminUsersScreen()));
@@ -298,7 +298,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.card_membership),
-            title: const Text('Subscriptions'),
+            title: Text(AppLocalizations.of(context)?.subscriptions ?? 'Subscriptions'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminSubscriptionsScreen()));
@@ -306,7 +306,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.verified_user),
-            title: const Text('Verification'),
+            title: Text(AppLocalizations.of(context)?.verification ?? 'Verification'),
             onTap: () {
               Navigator.pop(context);
               Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdminVerificationScreen()));
@@ -315,7 +315,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout),
-            title: const Text('Logout'),
+            title: Text(AppLocalizations.of(context)?.logout ?? 'Logout'),
             onTap: () {
               context.read<AuthProvider>().logout();
               Navigator.of(context).pushAndRemoveUntil(

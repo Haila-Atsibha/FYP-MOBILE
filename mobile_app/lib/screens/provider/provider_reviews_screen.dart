@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class ProviderReviewsScreen extends StatefulWidget {
   const ProviderReviewsScreen({super.key});
@@ -28,10 +29,11 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Customer Reviews'),
+        title: Text(l10n?.customerReviews ?? 'Customer Reviews'),
         elevation: 0,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -54,13 +56,13 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Customer Reviews',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  Text(
+                    l10n?.customerReviews ?? 'Customer Reviews',
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  const Text(
-                    'See what your customers are saying about your services',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
+                  Text(
+                    l10n?.customerReviewsSubtitle ?? 'See what your customers are saying about your services',
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                   const SizedBox(height: 32),
                   _buildOverallRating(reviews),
@@ -68,21 +70,21 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Recent Feedback',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      Text(
+                        l10n?.recentFeedback ?? 'Recent Feedback',
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       TextButton.icon(
                         onPressed: () {},
                         icon: const Icon(Icons.sort, size: 18),
-                        label: const Text('Sort: Newest First'),
+                        label: Text(l10n?.sortNewestFirst ?? 'Sort: Newest First'),
                         style: TextButton.styleFrom(foregroundColor: Colors.grey),
                       ),
                     ],
                   ),
                   const SizedBox(height: 16),
                   if (reviews.isEmpty)
-                    const Center(child: Text('No reviews yet.'))
+                    Center(child: Text(l10n?.noReviewsYet ?? 'No reviews yet.'))
                   else
                     ...reviews.map((r) => _buildReviewCard(r)).toList(),
                 ],
@@ -105,10 +107,11 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
       if (counts.containsKey(rounded)) counts[rounded] = counts[rounded]! + 1;
     }
 
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Overall Rating', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+        Text(l10n?.overallRating ?? 'Overall Rating', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
         const SizedBox(height: 20),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +125,7 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
                     style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    'Based on ${reviews.length} total reviews',
+                    l10n?.basedOnTotalReviews(reviews.length) ?? 'Based on ${reviews.length} total reviews',
                     textAlign: TextAlign.center,
                     style: const TextStyle(color: Colors.grey, fontSize: 12),
                   ),
@@ -173,6 +176,7 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
   }
 
   Widget _buildReviewCard(Review review) {
+    final l10n = AppLocalizations.of(context);
     String formattedDate = "${review.createdAt.month}/${review.createdAt.day}/${review.createdAt.year}";
     
     return Container(
@@ -225,18 +229,18 @@ class _ProviderReviewsScreenState extends State<ProviderReviewsScreen> {
               ),
               const SizedBox(width: 8),
               Text(
-                review.customerName ?? 'Verified Customer',
+                review.customerName ?? (l10n?.verifiedCustomer ?? 'Verified Customer'),
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Booked:',
-            style: TextStyle(color: Colors.grey, fontSize: 12),
+          Text(
+            l10n?.booked ?? 'Booked:',
+            style: const TextStyle(color: Colors.grey, fontSize: 12),
           ),
           Text(
-            review.serviceTitle ?? 'Professional Service',
+            review.serviceTitle ?? (l10n?.professionalService ?? 'Professional Service'),
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           ),
         ],

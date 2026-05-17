@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class ProviderBookingsScreen extends StatefulWidget {
   const ProviderBookingsScreen({super.key});
@@ -30,18 +31,19 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Bookings'),
+        title: Text(l10n?.bookMyBookings ?? 'My Bookings'),
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: AppTheme.primaryColor,
           labelColor: AppTheme.primaryColor,
           unselectedLabelColor: Colors.grey,
-          tabs: const [
-            Tab(text: 'Pending'),
-            Tab(text: 'Active'),
-            Tab(text: 'History'),
+          tabs: [
+            Tab(text: l10n?.tabPending ?? 'Pending'),
+            Tab(text: l10n?.tabActive ?? 'Active'),
+            Tab(text: l10n?.tabHistory ?? 'History'),
           ],
         ),
       ),
@@ -71,7 +73,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
 
   Widget _buildBookingList(List<Booking> bookings) {
     if (bookings.isEmpty) {
-      return const Center(child: Text('No bookings found'));
+      return Center(child: Text(AppLocalizations.of(context)?.bookNoBookings ?? 'No bookings found'));
     }
 
     return ListView.builder(
@@ -85,6 +87,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
   }
 
   Widget _buildBookingCard(Booking booking) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -98,16 +101,16 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  booking.title ?? 'Service',
+                  booking.title ?? (l10n?.bookServiceDefault ?? 'Service'),
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 _buildStatusBadge(booking.status),
               ],
             ),
             const SizedBox(height: 8),
-            Text('Customer: ${booking.providerName ?? "N/A"}'), // Using providerName as a placeholder for customer_name if not in model
+            Text(l10n?.bookingCustomerName(booking.providerName ?? "N/A") ?? 'Customer: ${booking.providerName ?? "N/A"}'), // Using providerName as a placeholder for customer_name if not in model
             const SizedBox(height: 4),
-            Text('Price: ETB ${booking.totalPrice?.toStringAsFixed(0) ?? "0"}'),
+            Text(l10n?.bookingPrice(booking.totalPrice?.toStringAsFixed(0) ?? "0") ?? 'Price: ETB ${booking.totalPrice?.toStringAsFixed(0) ?? "0"}'),
             const SizedBox(height: 8),
             if (booking.description != null && booking.description!.isNotEmpty)
               Container(
@@ -116,7 +119,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
                   color: Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Text('Note: ${booking.description}', style: const TextStyle(fontStyle: FontStyle.italic)),
+                child: Text(l10n?.bookingNote(booking.description!) ?? 'Note: ${booking.description}', style: const TextStyle(fontStyle: FontStyle.italic)),
               ),
             const SizedBox(height: 16),
             _buildActions(booking),
@@ -143,13 +146,26 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        status.toUpperCase(),
+        _getLocalizedStatus(status).toUpperCase(),
         style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 10),
       ),
     );
   }
 
+  String _getLocalizedStatus(String status) {
+    final l10n = AppLocalizations.of(context);
+    switch (status) {
+      case 'pending': return l10n?.bookStatusPending ?? 'Pending';
+      case 'accepted': return l10n?.bookStatusAccepted ?? 'Accepted';
+      case 'completed': return l10n?.bookStatusCompleted ?? 'Completed';
+      case 'rejected': return l10n?.bookStatusRejected ?? 'Rejected';
+      case 'cancelled': return l10n?.bookStatusCancelled ?? 'Cancelled';
+      default: return status;
+    }
+  }
+
   Widget _buildActions(Booking booking) {
+    final l10n = AppLocalizations.of(context);
     if (booking.status == 'pending') {
       return Row(
         children: [
@@ -157,7 +173,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
             child: OutlinedButton(
               onPressed: () => _updateStatus(booking.id, 'rejected'),
               style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-              child: const Text('Reject'),
+              child: Text(l10n?.actionReject ?? 'Reject'),
             ),
           ),
           const SizedBox(width: 12),
@@ -165,7 +181,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
             child: ElevatedButton(
               onPressed: () => _updateStatus(booking.id, 'accepted'),
               style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primaryColor),
-              child: const Text('Accept'),
+              child: Text(l10n?.actionAccept ?? 'Accept'),
             ),
           ),
         ],
@@ -176,7 +192,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
         child: ElevatedButton(
           onPressed: () => _updateStatus(booking.id, 'completed'),
           style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-          child: const Text('Mark as Completed'),
+          child: Text(l10n?.actionMarkCompleted ?? 'Mark as Completed'),
         ),
       );
     }
@@ -188,7 +204,7 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
       final success = await context.read<ApiService>().updateBookingStatus(bookingId, status);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Booking ${status} successfully')),
+          SnackBar(content: Text(AppLocalizations.of(context)?.bookingStatusUpdateSuccess(status) ?? 'Booking $status successfully')),
         );
         _loadBookings();
       }

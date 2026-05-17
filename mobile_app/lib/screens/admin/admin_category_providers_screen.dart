@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 
 class AdminCategoryProvidersScreen extends StatefulWidget {
   final Category category;
@@ -30,9 +31,10 @@ class _AdminCategoryProvidersScreenState extends State<AdminCategoryProvidersScr
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.category.name} Providers'),
+        title: Text(l10n?.providersInCategory(widget.category.name) ?? '${widget.category.name} Providers'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -53,8 +55,8 @@ class _AdminCategoryProvidersScreenState extends State<AdminCategoryProvidersScr
                 children: [
                   const Icon(Icons.error_outline, color: Colors.red, size: 48),
                   const SizedBox(height: 16),
-                  Text('Error: ${snapshot.error}'),
-                  ElevatedButton(onPressed: _loadProviders, child: const Text('Retry')),
+                  Text(l10n?.errorText(snapshot.error.toString()) ?? 'Error: ${snapshot.error}'),
+                  ElevatedButton(onPressed: _loadProviders, child: Text(l10n?.retry ?? 'Retry')),
                 ],
               ),
             );
@@ -68,7 +70,7 @@ class _AdminCategoryProvidersScreenState extends State<AdminCategoryProvidersScr
                   Icon(Icons.person_off_outlined, size: 64, color: Colors.grey.shade400),
                   const SizedBox(height: 16),
                   Text(
-                    'No providers found in this category.',
+                    l10n?.noProvidersFoundInCategory ?? 'No providers found in this category.',
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
                   ),
                 ],
@@ -108,7 +110,7 @@ class _AdminCategoryProvidersScreenState extends State<AdminCategoryProvidersScr
                           const Icon(Icons.star, color: Colors.amber, size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            '${provider.averageRating.toStringAsFixed(1)} • ${provider.completedJobs} jobs',
+                            l10n?.ratingJobsCount(provider.averageRating.toStringAsFixed(1), provider.completedJobs.toString()) ?? '${provider.averageRating.toStringAsFixed(1)} • ${provider.completedJobs} jobs',
                             style: const TextStyle(fontSize: 13),
                           ),
                         ],

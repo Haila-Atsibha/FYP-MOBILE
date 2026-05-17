@@ -3,6 +3,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/l10n/app_localizations.dart';
 import 'admin_category_providers_screen.dart';
 
 class AdminCategoriesScreen extends StatefulWidget {
@@ -28,19 +29,20 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
   }
 
   void _showAddCategoryDialog() {
+    final l10n = AppLocalizations.of(context);
     final nameController = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Add New Category'),
+        title: Text(l10n?.addNewCategory ?? 'Add New Category'),
         content: SingleChildScrollView(
           child: TextField(
             controller: nameController,
-            decoration: const InputDecoration(hintText: 'Category Name'),
+            decoration: InputDecoration(hintText: l10n?.categoryName ?? 'Category Name'),
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n?.cancel ?? 'Cancel')),
           TextButton(
             onPressed: () async {
               if (nameController.text.isEmpty) return;
@@ -49,13 +51,13 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
                 if (mounted) {
                    Navigator.pop(context);
                    _loadCategories();
-                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Category created!')));
+                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n?.categoryCreated ?? 'Category created!')));
                 }
               } catch (e) {
-                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n?.errorText(e.toString()) ?? 'Error: $e')));
               }
             },
-            child: const Text('Add'),
+            child: Text(l10n?.add ?? 'Add'),
           ),
         ],
       ),
@@ -64,9 +66,10 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Manage Categories'),
+        title: Text(l10n?.manageCategories ?? 'Manage Categories'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -85,11 +88,11 @@ class _AdminCategoriesScreenState extends State<AdminCategoriesScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Center(child: Text(l10n?.errorText(snapshot.error.toString()) ?? 'Error: ${snapshot.error}'));
           }
           final categories = snapshot.data ?? [];
           if (categories.isEmpty) {
-            return const Center(child: Text('No categories found.'));
+            return Center(child: Text(l10n?.noCategoriesFound ?? 'No categories found.'));
           }
 
           return GridView.builder(
