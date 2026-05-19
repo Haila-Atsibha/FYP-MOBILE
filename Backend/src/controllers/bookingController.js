@@ -7,7 +7,7 @@ const { createNotification } = require('./notificationController');
 exports.createBooking = async (req, res) => {
     try {
         const userId = req.user.id; // customer id
-        const { service_id, description } = req.body;
+        const { service_id, description, scheduled_date, scheduled_time } = req.body;
 
         if (!service_id) {
             return res.status(400).json({ message: "service_id is required" });
@@ -30,9 +30,9 @@ exports.createBooking = async (req, res) => {
 
         const ins = await pool.query(
             `INSERT INTO bookings
-             (service_id, provider_id, customer_id, total_price, status, description, booking_date)
-             VALUES ($1,$2,$3,$4,'pending',$5, CURRENT_DATE) RETURNING *`,
-            [service_id, providerId, userId, totalPrice, description || "No description provided"]
+             (service_id, provider_id, customer_id, total_price, status, description, booking_date, scheduled_date, scheduled_time)
+             VALUES ($1,$2,$3,$4,'pending',$5, CURRENT_DATE, $6, $7) RETURNING *`,
+            [service_id, providerId, userId, totalPrice, description || "No description provided", scheduled_date || null, scheduled_time || null]
         );
 
         // Get provider's user_id for notification
@@ -234,6 +234,23 @@ exports.updateBookingStatus = async (req, res) => {
                     '/provider/bookings'
                 );
                 return persist('cancelled');
+            }
+            if (status === 'completed') {
+                if (current !== 'accepted') {
+                    return res.status(400).json({ message: "Can only complete accepted bookings" });
+                }
+                // Get provider's user_id for notification
+                const provUserRes = await pool.query("SELECT user_id FROM provider_profiles WHERE id = $1", [booking.provider_id]);
+                const providerUserId = provUserRes.rows[0].user_id;
+
+                await createNotification(
+                    providerUserId,
+                    "Booking Completed",
+                    `The customer has marked the booking for "${booking.title}" as completed.`,
+                    'booking',
+                    '/provider/bookings'
+                );
+                return persist('completed');
             }
             return res.status(400).json({ message: "Invalid status transition for customer" });
         }

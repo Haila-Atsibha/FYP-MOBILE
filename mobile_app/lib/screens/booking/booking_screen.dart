@@ -4,6 +4,7 @@ import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:provider/provider.dart';
+import 'package:mobile_app/providers/auth_provider.dart';
 
 class BookingScreen extends StatefulWidget {
   final String providerProfileId;
@@ -20,6 +21,31 @@ class _BookingScreenState extends State<BookingScreen> {
   ProviderDetail? _providerDetail;
   int? _selectedServiceId;
   final TextEditingController _descriptionController = TextEditingController();
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final date = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 365)),
+    );
+    if (date != null) {
+      setState(() => _selectedDate = date);
+    }
+  }
+
+  Future<void> _pickTime() async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (time != null) {
+      setState(() => _selectedTime = time);
+    }
+  }
 
   @override
   void initState() {
@@ -51,6 +77,14 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   void _confirmBooking() async {
+    final auth = context.read<AuthProvider>();
+    if (auth.user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.loginToContinue)),
+      );
+      return;
+    }
+
     if (_selectedServiceId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(AppLocalizations.of(context)!.bookSelectServiceWarning)),
@@ -64,6 +98,10 @@ class _BookingScreenState extends State<BookingScreen> {
       await api.createBooking(
         serviceId: _selectedServiceId!,
         description: _descriptionController.text.trim(),
+        scheduledDate: _selectedDate?.toIso8601String().split('T')[0],
+        scheduledTime: _selectedTime != null 
+            ? '${_selectedTime!.hour.toString().padLeft(2, '0')}:${_selectedTime!.minute.toString().padLeft(2, '0')}:00'
+            : null,
       );
       
       if (mounted) {
@@ -172,6 +210,40 @@ class _BookingScreenState extends State<BookingScreen> {
                 contentPadding: EdgeInsets.zero,
                 activeColor: AppTheme.primaryColor,
               )),
+
+            const SizedBox(height: 32),
+
+            // Date & Time Picker
+            Text(
+              'Schedule Appointment (Optional)',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _pickDate,
+                    icon: const Icon(Icons.calendar_today),
+                    label: Text(_selectedDate == null 
+                      ? 'Select Date' 
+                      : '${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}'),
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _pickTime,
+                    icon: const Icon(Icons.access_time),
+                    label: Text(_selectedTime == null 
+                      ? 'Select Time' 
+                      : _selectedTime!.format(context)),
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                  ),
+                ),
+              ],
+            ),
 
             const SizedBox(height: 32),
 

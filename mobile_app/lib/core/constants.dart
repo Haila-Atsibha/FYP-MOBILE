@@ -5,7 +5,8 @@ class ApiConfig {
     if (kIsWeb) {
       return 'http://localhost:5000/api';
     }
-    return 'http://10.0.2.2:5000/api';
+    // Using Windows Mobile Hotspot IP
+    return 'http://192.168.137.1:5000/api';
   }
 
   static const String supabaseUrl = 'https://aeozrauzceiegcbafssv.supabase.co';

@@ -128,9 +128,25 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         children: [
                           Icon(Icons.calendar_today, size: 14, color: Colors.grey.shade600),
                           const SizedBox(width: 6),
-                          Text(dateStr, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                          Text('Requested: $dateStr', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
                         ],
                       ),
+                      if (booking.scheduledDate != null) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(Icons.event_available, size: 14, color: Colors.blue.shade600),
+                            const SizedBox(width: 6),
+                            Text('Scheduled: ${booking.scheduledDate}', style: TextStyle(color: Colors.blue.shade700, fontSize: 13, fontWeight: FontWeight.w600)),
+                            if (booking.scheduledTime != null) ...[
+                              const SizedBox(width: 12),
+                              Icon(Icons.access_time, size: 14, color: Colors.blue.shade600),
+                              const SizedBox(width: 6),
+                              Text(booking.scheduledTime!.substring(0, 5), style: TextStyle(color: Colors.blue.shade700, fontSize: 13, fontWeight: FontWeight.w600)),
+                            ],
+                          ],
+                        ),
+                      ],
                       const Divider(height: 24),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -144,6 +160,44 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                               onPressed: () => _cancelBooking(booking.id),
                               style: TextButton.styleFrom(foregroundColor: Colors.red),
                               child: Text(AppLocalizations.of(context)!.bookCancelBooking),
+                            )
+                          else if (booking.status.toLowerCase() == 'accepted')
+                            ElevatedButton(
+                              onPressed: () async {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text(AppLocalizations.of(context)!.actionMarkCompleted),
+                                    content: const Text('Are you sure you want to mark this task as completed?'),
+                                    actions: [
+                                      TextButton(onPressed: () => Navigator.pop(context, false), child: Text(AppLocalizations.of(context)!.bookCancel)),
+                                      TextButton(onPressed: () => Navigator.pop(context, true), child: Text(AppLocalizations.of(context)!.bookOk)),
+                                    ],
+                                  ),
+                                );
+                                if (confirmed == true && context.mounted) {
+                                  try {
+                                    await context.read<ApiService>().updateBookingStatus(booking.id, 'completed');
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Booking marked as completed!')));
+                                      setState(() {
+                                        _loadBookings();
+                                      });
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                                    }
+                                  }
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                minimumSize: Size.zero,
+                              ),
+                              child: Text(AppLocalizations.of(context)!.actionMarkCompleted, style: const TextStyle(fontSize: 12)),
                             )
                           else if (booking.status.toLowerCase() == 'completed')
                             booking.isReviewed

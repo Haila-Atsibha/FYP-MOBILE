@@ -887,4 +887,22 @@ class AppLocalizationsAm extends AppLocalizations {
   String errorText(Object error) {
     return 'ስህተት: $error';
   }
+
+  @override
+  String get chatAddCaption => 'መግለጫ ያክሉ (አማራጭ)';
+
+  @override
+  String get chatSend => 'ላክ';
+
+  @override
+  String get chatCancel => 'ሰርዝ';
+
+  @override
+  String get landingGetStarted => 'ጀምር';
+
+  @override
+  String get exploreAsGuest => 'እንደ እንግዳ ያስሱ';
+
+  @override
+  String get loginToContinue => 'ለመቀጠል እባክዎ ይግቡ';
 }

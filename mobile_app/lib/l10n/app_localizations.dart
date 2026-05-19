@@ -1789,6 +1789,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error: {error}'**
   String errorText(Object error);
+
+  /// No description provided for @chatAddCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a caption (optional)'**
+  String get chatAddCaption;
+
+  /// No description provided for @chatSend.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get chatSend;
+
+  /// No description provided for @chatCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get chatCancel;
+
+  /// No description provided for @landingGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get landingGetStarted;
+
+  /// No description provided for @exploreAsGuest.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore as Guest'**
+  String get exploreAsGuest;
+
+  /// No description provided for @loginToContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Please login to continue'**
+  String get loginToContinue;
 }
 
 class _AppLocalizationsDelegate

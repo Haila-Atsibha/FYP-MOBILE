@@ -137,11 +137,29 @@ exports.getBadgeStats = async (req, res) => {
 exports.createNotification = async (userId, title, message, type = 'system', link = null) => {
     try {
         const uId = parseInt(userId);
+        
+        // 1. Insert into database
         await pool.query(
             `INSERT INTO notifications (user_id, title, message, type, link, is_read)
              VALUES ($1, $2, $3, $4, $5, false)`,
             [uId, title, message, type, link]
         );
+
+        // 2. Fetch user's FCM token
+        const userRes = await pool.query("SELECT fcm_token FROM users WHERE id = $1", [uId]);
+        if (userRes.rows.length > 0 && userRes.rows[0].fcm_token) {
+            const fcmToken = userRes.rows[0].fcm_token;
+            const firebaseAdmin = require('../utils/firebaseAdmin');
+            
+            // 3. Send Push Notification
+            await firebaseAdmin.sendPushNotification(
+                fcmToken,
+                title,
+                message,
+                { type, link: link || '' }
+            );
+        }
+
     } catch (error) {
         console.error("Failed to create notification:", error);
         logError(error, "createNotification Helper");

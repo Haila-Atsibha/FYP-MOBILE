@@ -7,6 +7,9 @@ import 'package:mobile_app/screens/provider/provider_dashboard_screen.dart';
 import 'package:mobile_app/screens/admin/admin_dashboard_screen.dart';
 import 'package:mobile_app/screens/auth/register_screen.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
+import 'package:mobile_app/providers/locale_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mobile_app/screens/auth/verify_email_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,6 +22,30 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  List<String> _savedEmails = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedEmails();
+  }
+
+  Future<void> _loadSavedEmails() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _savedEmails = prefs.getStringList('saved_emails') ?? [];
+    });
+  }
+
+  Future<void> _saveEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    final emails = prefs.getStringList('saved_emails') ?? [];
+    if (!emails.contains(email)) {
+      emails.insert(0, email);
+      if (emails.length > 5) emails.removeLast();
+      await prefs.setStringList('saved_emails', emails);
+    }
+  }
 
   void _handleLogin() async {
     final auth = context.read<AuthProvider>();
@@ -28,6 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     if (errorMsg == null && mounted) {
+      _saveEmail(_emailController.text.trim());
       final user = auth.user;
       Widget nextScreen;
 
@@ -37,19 +65,23 @@ class _LoginScreenState extends State<LoginScreen> {
         nextScreen = const ProviderDashboardScreen();
       } else {
         nextScreen = const HomeScreen();
-      }
-
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => nextScreen),
       );
     } else if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMsg ?? AppLocalizations.of(context)!.loginFailed),
-          backgroundColor: Colors.red.shade600,
-          duration: const Duration(seconds: 4),
-        ),
-      );
+      if (errorMsg != null && errorMsg.startsWith('EMAIL_NOT_VERIFIED|')) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => VerifyEmailScreen(email: _emailController.text.trim())),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMsg ?? AppLocalizations.of(context)!.loginFailed),
+            backgroundColor: Colors.red.shade600,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     }
   }
 
@@ -75,13 +107,38 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: TextButton.icon(
+                          onPressed: () {
+                            context.read<LocaleProvider>().toggleLocale();
+                          },
+                          icon: const Icon(Icons.language, color: AppTheme.accentColor, size: 20),
+                          label: Text(
+                            AppLocalizations.of(context)!.languageToggle,
+                            style: const TextStyle(color: AppTheme.accentColor, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(0.1),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.1),
@@ -106,6 +163,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
+                  ],
+                ),
               ),
             ),
             
@@ -119,14 +178,38 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
                   ),
                   const SizedBox(height: 24),
-                  TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context)!.emailAddress,
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: const OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.emailAddress,
+                  Autocomplete<String>(
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty) {
+                        return _savedEmails;
+                      }
+                      return _savedEmails.where((String option) {
+                        return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                      });
+                    },
+                    onSelected: (String selection) {
+                      _emailController.text = selection;
+                    },
+                    fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                      // Sync initial state if needed
+                      if (controller.text.isEmpty && _emailController.text.isNotEmpty) {
+                        controller.text = _emailController.text;
+                      }
+                      return TextField(
+                        controller: controller,
+                        focusNode: focusNode,
+                        onChanged: (val) {
+                          _emailController.text = val;
+                        },
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context)!.emailAddress,
+                          prefixIcon: const Icon(Icons.email_outlined),
+                          border: const OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.emailAddress,
+                        onEditingComplete: onEditingComplete,
+                      );
+                    },
                   ),
                   const SizedBox(height: 20),
                   TextField(

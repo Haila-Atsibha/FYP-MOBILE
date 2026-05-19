@@ -30,7 +30,34 @@ class ApiService {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return data;
     } else {
+      if (data['code'] == 'EMAIL_NOT_VERIFIED') {
+        throw Exception('EMAIL_NOT_VERIFIED|${data['message']}');
+      }
       throw Exception(data['message'] ?? 'Login Failed');
+    }
+  }
+
+  Future<void> verifyEmail(String email, String otp) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/auth/verify-email'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'otp': otp}),
+    );
+    final data = jsonDecode(response.body);
+    if (response.statusCode != 200) {
+      throw Exception(data['message'] ?? 'Verification Failed');
+    }
+  }
+
+  Future<void> resendOtp(String email) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/auth/resend-otp'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email}),
+    );
+    final data = jsonDecode(response.body);
+    if (response.statusCode != 200) {
+      throw Exception(data['message'] ?? 'Failed to resend OTP');
     }
   }
 
@@ -188,14 +215,24 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> createBooking({required int serviceId, String? description}) async {
+  Future<Map<String, dynamic>> createBooking({
+    required int serviceId,
+    String? description,
+    String? scheduledDate,
+    String? scheduledTime,
+  }) async {
+    final Map<String, dynamic> body = {
+      'service_id': serviceId,
+      'description': description,
+    };
+    
+    if (scheduledDate != null) body['scheduled_date'] = scheduledDate;
+    if (scheduledTime != null) body['scheduled_time'] = scheduledTime;
+
     final response = await http.post(
       Uri.parse('$_baseUrl/bookings'),
       headers: _headers,
-      body: jsonEncode({
-        'service_id': serviceId,
-        'description': description,
-      }),
+      body: jsonEncode(body),
     );
     return jsonDecode(response.body);
   }
@@ -254,16 +291,47 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>> sendMessage(int bookingId, String content) async {
-    final response = await http.post(
-      Uri.parse('$_baseUrl/messages'),
-      headers: _headers,
-      body: jsonEncode({
-        'booking_id': bookingId,
-        'content': content,
-      }),
-    );
-    return jsonDecode(response.body);
+  Future<Map<String, dynamic>> sendMessage({
+    required int bookingId,
+    String? content,
+    XFile? mediaFile,
+    double? lat,
+    double? lng,
+    String? locationLabel,
+  }) async {
+    final request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/messages'));
+    if (_token != null) {
+      request.headers['Authorization'] = 'Bearer $_token';
+    }
+
+    request.fields['booking_id'] = bookingId.toString();
+    if (content != null && content.isNotEmpty) {
+      request.fields['content'] = content;
+    }
+    if (lat != null && lng != null) {
+      request.fields['location_lat'] = lat.toString();
+      request.fields['location_lng'] = lng.toString();
+      if (locationLabel != null) {
+        request.fields['location_label'] = locationLabel;
+      }
+    }
+
+    if (mediaFile != null) {
+      final bytes = await mediaFile.readAsBytes();
+      String fName = mediaFile.name;
+      if (fName.isEmpty || fName.contains(r'\')) fName = 'media.jpg';
+      request.files.add(http.MultipartFile.fromBytes('mediaFile', bytes, filename: fName));
+    }
+
+    final streamResponse = await request.send();
+    final response = await http.Response.fromStream(streamResponse);
+    
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return jsonDecode(response.body);
+    } else {
+      final message = jsonDecode(response.body)['message'] ?? 'Failed to send message';
+      throw Exception(message);
+    }
   }
 
   // Dashboard Enhancements
@@ -602,6 +670,17 @@ class ApiService {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to reply to complaint: ${jsonDecode(response.body)['message']}');
+    }
+  }
+
+  Future<void> updateFcmToken(String fcmToken) async {
+    final response = await http.post(
+      Uri.parse('$_baseUrl/auth/fcm-token'),
+      headers: _headers,
+      body: jsonEncode({'fcm_token': fcmToken}),
+    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      debugPrint('Failed to update FCM token: ${response.body}');
     }
   }
 }

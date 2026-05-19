@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as sb;
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthProvider extends ChangeNotifier {
   final ApiService _apiService;
@@ -24,6 +25,10 @@ class AuthProvider extends ChangeNotifier {
         _user = User.fromJson(result['user']);
         _isLoading = false;
         notifyListeners();
+        
+        // Handle FCM setup asynchronously so it doesn't block login
+        _setupFCM();
+
         return null; // null means success
       }
       return 'Unexpected login response';
@@ -50,5 +55,28 @@ class AuthProvider extends ChangeNotifier {
     _user = null;
     _apiService.setToken('');
     notifyListeners();
+  }
+
+  Future<void> _setupFCM() async {
+    try {
+      final messaging = FirebaseMessaging.instance;
+      
+      // Request permission (mostly for iOS/Android 13+)
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+
+      if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+        String? token = await messaging.getToken();
+        if (token != null) {
+          debugPrint('FCM Token: $token');
+          await _apiService.updateFcmToken(token);
+        }
+      }
+    } catch (e) {
+      debugPrint('FCM Setup Error: $e');
+    }
   }
 }

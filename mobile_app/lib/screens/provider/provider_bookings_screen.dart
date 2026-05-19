@@ -111,6 +111,22 @@ class _ProviderBookingsScreenState extends State<ProviderBookingsScreen> with Si
             Text(l10n?.bookingCustomerName(booking.providerName ?? "N/A") ?? 'Customer: ${booking.providerName ?? "N/A"}'), // Using providerName as a placeholder for customer_name if not in model
             const SizedBox(height: 4),
             Text(l10n?.bookingPrice(booking.totalPrice?.toStringAsFixed(0) ?? "0") ?? 'Price: ETB ${booking.totalPrice?.toStringAsFixed(0) ?? "0"}'),
+            if (booking.scheduledDate != null) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today, size: 16, color: Colors.blue),
+                  const SizedBox(width: 6),
+                  Text('Scheduled: ${booking.scheduledDate}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+                  if (booking.scheduledTime != null) ...[
+                    const SizedBox(width: 12),
+                    const Icon(Icons.access_time, size: 16, color: Colors.blue),
+                    const SizedBox(width: 6),
+                    Text(booking.scheduledTime!.substring(0, 5), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)),
+                  ]
+                ],
+              ),
+            ],
             const SizedBox(height: 8),
             if (booking.description != null && booking.description!.isNotEmpty)
               Container(

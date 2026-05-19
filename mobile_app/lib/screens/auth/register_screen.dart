@@ -9,6 +9,8 @@ import 'package:mobile_app/models/models.dart';
 import 'package:mobile_app/screens/auth/camera_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
+import 'package:mobile_app/providers/locale_provider.dart';
+import 'package:mobile_app/screens/auth/verify_email_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -170,7 +172,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(AppLocalizations.of(context)!.registerSuccess)),
         );
-        Navigator.pop(context); // Go back to login screen
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => VerifyEmailScreen(email: _emailController.text.trim())),
+          (route) => false,
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -205,13 +210,38 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      IconButton(
+                child: Stack(
+                  children: [
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: TextButton.icon(
+                          onPressed: () {
+                            context.read<LocaleProvider>().toggleLocale();
+                          },
+                          icon: const Icon(Icons.language, color: AppTheme.accentColor, size: 20),
+                          label: Text(
+                            AppLocalizations.of(context)!.languageToggle,
+                            style: const TextStyle(color: AppTheme.accentColor, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          style: TextButton.styleFrom(
+                            backgroundColor: Colors.white.withOpacity(0.1),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
                         icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
                         onPressed: () => Navigator.pop(context),
                       ),
@@ -230,6 +260,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ],
                   ),
+                ),
+                  ],
                 ),
               ),
             ),

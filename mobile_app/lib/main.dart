@@ -3,15 +3,27 @@ import 'package:mobile_app/core/constants.dart';
 import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/screens/auth/login_screen.dart';
+import 'package:mobile_app/screens/landing/landing_screen.dart';
 import 'package:mobile_app/services/api_service.dart';
 import 'package:mobile_app/providers/locale_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  debugPrint("Handling a background message: ${message.messageId}");
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await Supabase.initialize(
     url: ApiConfig.supabaseUrl,
@@ -52,7 +64,7 @@ class MyApp extends StatelessWidget {
               Locale('en'),
               Locale('am'),
             ],
-            home: const LoginScreen(),
+            home: const LandingScreen(),
           );
         },
       ),

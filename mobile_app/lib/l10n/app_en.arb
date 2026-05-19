@@ -352,5 +352,11 @@
     "placeholders": {
       "error": {}
     }
-  }
+  },
+  "chatAddCaption": "Add a caption (optional)",
+  "chatSend": "Send",
+  "chatCancel": "Cancel",
+  "landingGetStarted": "Get Started",
+  "exploreAsGuest": "Explore as Guest",
+  "loginToContinue": "Please login to continue"
 }

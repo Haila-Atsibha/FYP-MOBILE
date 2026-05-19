@@ -99,6 +99,8 @@ class Booking {
   final double? totalPrice;
   final String? description;
   final bool isReviewed;
+  final String? scheduledDate;
+  final String? scheduledTime;
 
   Booking({
     required this.id,
@@ -113,6 +115,8 @@ class Booking {
     this.totalPrice,
     this.description,
     this.isReviewed = false,
+    this.scheduledDate,
+    this.scheduledTime,
   });
 
   factory Booking.fromJson(Map<String, dynamic> json) {
@@ -141,6 +145,8 @@ class Booking {
       totalPrice: double.tryParse((json['total_price'] ?? json['price'] ?? '0').toString()),
       description: json['description']?.toString(),
       isReviewed: json['is_reviewed'] == true || json['is_reviewed'] == 1,
+      scheduledDate: json['scheduled_date']?.toString(),
+      scheduledTime: json['scheduled_time']?.toString(),
     );
   }
 }
@@ -184,6 +190,9 @@ class ChatMessage {
   final String content;
   final DateTime createdAt;
   final String? senderName;
+  final String? messageType;
+  final String? mediaUrl;
+  final Map<String, dynamic>? location;
 
   ChatMessage({
     required this.id,
@@ -192,6 +201,9 @@ class ChatMessage {
     required this.content,
     required this.createdAt,
     this.senderName,
+    this.messageType = 'text',
+    this.mediaUrl,
+    this.location,
   });
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
@@ -199,9 +211,12 @@ class ChatMessage {
       id: json['id'],
       bookingId: json['booking_id'],
       senderId: json['sender_id'].toString(),
-      content: json['content'],
+      content: json['content'] ?? '',
       createdAt: DateTime.parse(json['created_at']),
       senderName: json['sender_name'],
+      messageType: json['message_type'] ?? 'text',
+      mediaUrl: json['media_url'],
+      location: json['location'] != null ? Map<String, dynamic>.from(json['location']) : null,
     );
   }
 }

@@ -47,10 +47,12 @@ exports.registerUser = async (req, res) => {
             req.files.verificationSelfie[0].originalname
         );
 
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
         const newUser = await pool.query(
             `INSERT INTO users 
-                (name, email, password, role, status, profile_image_url, national_id_url, verification_selfie_url) 
-             VALUES ($1,$2,$3,$4,$5,$6,$7,$8) 
+                (name, email, password, role, status, profile_image_url, national_id_url, verification_selfie_url, verification_otp, is_email_verified) 
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,false) 
              RETURNING id, name, email, role, status, profile_image_url, national_id_url, verification_selfie_url`,
             [
                 name,
@@ -60,11 +62,20 @@ exports.registerUser = async (req, res) => {
                 'pending',
                 profileImageUrl,
                 nationalIdUrl,
-                verificationSelfieUrl
+                verificationSelfieUrl,
+                otp
             ]
         );
 
         const user = newUser.rows[0];
+
+        // Send Verification Email
+        const emailHelper = require('../utils/emailHelper');
+        try {
+            await emailHelper.sendVerificationEmail(email, otp);
+        } catch (e) {
+            console.error("Failed to send OTP email", e);
+        }
 
         // if provider, create profile and add categories
         if (role === 'provider') {
@@ -170,6 +181,11 @@ exports.loginUser = async (req, res) => {
 
         const user = userResult.rows[0];
 
+        // check email verification
+        if (!user.is_email_verified) {
+            return res.status(403).json({ message: "Please verify your email before logging in", code: "EMAIL_NOT_VERIFIED" });
+        }
+
         // disallow login if account not yet approved by admin
         if (user.status === 'pending') {
             return res.status(403).json({
@@ -210,5 +226,63 @@ exports.loginUser = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ message: "Server error", error });
+    }
+};
+
+exports.verifyEmail = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        if (result.rows.length === 0) return res.status(400).json({ message: "User not found" });
+
+        const user = result.rows[0];
+        if (user.is_email_verified) return res.status(400).json({ message: "Email already verified" });
+        if (user.verification_otp !== otp) return res.status(400).json({ message: "Invalid verification code" });
+
+        await pool.query("UPDATE users SET is_email_verified = true, verification_otp = null WHERE id = $1", [user.id]);
+        res.json({ message: "Email verified successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+exports.resendOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        if (result.rows.length === 0) return res.status(400).json({ message: "User not found" });
+
+        const user = result.rows[0];
+        if (user.is_email_verified) return res.status(400).json({ message: "Email already verified" });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        await pool.query("UPDATE users SET verification_otp = $1 WHERE id = $2", [otp, user.id]);
+
+        const emailHelper = require('../utils/emailHelper');
+        await emailHelper.sendVerificationEmail(email, otp);
+
+        res.json({ message: "Verification code resent successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error });
+    }
+};
+
+exports.updateFcmToken = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { fcm_token } = req.body;
+
+        if (!fcm_token) {
+            return res.status(400).json({ message: "fcm_token is required" });
+        }
+
+        await pool.query(
+            "UPDATE users SET fcm_token = $1 WHERE id = $2",
+            [fcm_token, userId]
+        );
+
+        res.json({ message: "FCM token updated successfully" });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };

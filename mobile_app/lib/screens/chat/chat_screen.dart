@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_app/core/theme.dart';
 import 'package:mobile_app/models/models.dart';
@@ -6,6 +8,9 @@ import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile_app/l10n/app_localizations.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatScreen extends StatefulWidget {
   final Conversation conversation;
@@ -31,34 +36,170 @@ class _ChatScreenState extends State<ChatScreen> {
     _messagesFuture = context.read<ApiService>().getMessages(widget.conversation.bookingId);
   }
 
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
   void _sendMessage() async {
     final content = _messageController.text.trim();
     if (content.isEmpty) return;
 
     try {
-      await context.read<ApiService>().sendMessage(widget.conversation.bookingId, content);
+      await context.read<ApiService>().sendMessage(bookingId: widget.conversation.bookingId, content: content);
       _messageController.clear();
       setState(() {
         _loadMessages();
       });
-      // Scroll to bottom after loading
-      Future.delayed(const Duration(milliseconds: 300), () {
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
-      });
+      _scrollToBottom();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.chatMessageSendError),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.chatMessageSendError),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
+  }
+
+  void _sendLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Location services are disabled.')));
+      }
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Location permissions are denied')));
+        }
+        return;
+      }
+    }
+    
+    if (permission == LocationPermission.deniedForever) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Location permissions are permanently denied.')));
+      }
+      return;
+    }
+
+    try {
+      Position position = await Geolocator.getCurrentPosition();
+      
+      final caption = await _showCaptionDialog(isLocation: true);
+      if (caption == null) return;
+
+      await context.read<ApiService>().sendMessage(
+        bookingId: widget.conversation.bookingId,
+        content: caption,
+        lat: position.latitude,
+        lng: position.longitude,
+        locationLabel: 'Shared Location',
+      );
+      setState(() {
+        _loadMessages();
+      });
+      _scrollToBottom();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.chatMessageSendError)));
+      }
+    }
+  }
+
+  Future<String?> _showCaptionDialog({XFile? imageFile, bool isLocation = false}) async {
+    return Navigator.push<String>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MediaPreviewScreen(
+          imageFile: imageFile,
+          isLocation: isLocation,
+        ),
+        fullscreenDialog: true,
+      ),
+    );
+  }
+
+  void _sendMedia(ImageSource source) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: source);
+    if (image == null) return;
+
+    final caption = await _showCaptionDialog(imageFile: image);
+    if (caption == null) return;
+
+    try {
+      await context.read<ApiService>().sendMessage(
+        bookingId: widget.conversation.bookingId,
+        content: caption,
+        mediaFile: image,
+      );
+      setState(() {
+        _loadMessages();
+      });
+      _scrollToBottom();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.chatMessageSendError)));
+      }
+    }
+  }
+
+  void _showAttachmentOptions() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _sendMedia(ImageSource.camera);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _sendMedia(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.location_on),
+                title: const Text('Location'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _sendLocation();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -115,10 +256,55 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Column(
                           crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              message.content,
-                              style: TextStyle(color: isMe ? Colors.white : Colors.black87),
-                            ),
+                            if (message.messageType == 'image' && message.mediaUrl != null)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    message.mediaUrl!,
+                                    width: 200,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                            if (message.messageType == 'location' && message.location != null)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    final lat = message.location!['lat'];
+                                    final lng = message.location!['lng'];
+                                    final url = Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+                                    if (await canLaunchUrl(url)) {
+                                      await launchUrl(url);
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.location_on, color: Colors.red),
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          message.location!['label'] ?? 'Location',
+                                          style: const TextStyle(fontWeight: FontWeight.w500, color: Colors.black87),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (message.content.isNotEmpty)
+                              Text(
+                                message.content,
+                                style: TextStyle(color: isMe ? Colors.white : Colors.black87),
+                              ),
                             const SizedBox(height: 4),
                             Text(
                               DateFormat.Hm().format(message.createdAt),
@@ -210,6 +396,11 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(height: 4),
             Row(
               children: [
+                IconButton(
+                  icon: const Icon(Icons.attach_file),
+                  color: Colors.grey,
+                  onPressed: isAccepted ? _showAttachmentOptions : null,
+                ),
                 Expanded(
                   child: TextField(
                     controller: _messageController,
@@ -228,6 +419,100 @@ class _ChatScreenState extends State<ChatScreen> {
                   onPressed: isAccepted ? _sendMessage : null,
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MediaPreviewScreen extends StatefulWidget {
+  final XFile? imageFile;
+  final bool isLocation;
+
+  const MediaPreviewScreen({super.key, this.imageFile, this.isLocation = false});
+
+  @override
+  State<MediaPreviewScreen> createState() => _MediaPreviewScreenState();
+}
+
+class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
+  final TextEditingController _captionController = TextEditingController();
+
+  @override
+  void dispose() {
+    _captionController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          widget.isLocation ? 'Send Location' : 'Send Photo',
+          style: const TextStyle(color: Colors.white),
+        ),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: widget.isLocation
+                    ? const Icon(Icons.location_on, size: 100, color: Colors.red)
+                    : (kIsWeb
+                        ? Image.network(widget.imageFile!.path, fit: BoxFit.contain)
+                        : Image.file(File(widget.imageFile!.path), fit: BoxFit.contain)),
+              ),
+            ),
+            Container(
+              color: Colors.black87,
+              padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _captionController,
+                      style: const TextStyle(color: Colors.white),
+                      autofocus: true,
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)?.chatAddCaption ?? 'Add a caption...',
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(24),
+                          borderSide: BorderSide.none,
+                        ),
+                        filled: true,
+                        fillColor: Colors.white24,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                      maxLines: 5,
+                      minLines: 1,
+                      textCapitalization: TextCapitalization.sentences,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 2.0),
+                    child: CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppTheme.primaryColor,
+                      child: IconButton(
+                        icon: const Icon(Icons.send, color: Colors.white),
+                        onPressed: () {
+                          Navigator.pop(context, _captionController.text.trim());
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

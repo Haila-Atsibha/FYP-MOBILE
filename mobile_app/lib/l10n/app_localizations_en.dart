@@ -897,4 +897,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String errorText(Object error) {
     return 'Error: $error';
   }
+
+  @override
+  String get chatAddCaption => 'Add a caption (optional)';
+
+  @override
+  String get chatSend => 'Send';
+
+  @override
+  String get chatCancel => 'Cancel';
+
+  @override
+  String get landingGetStarted => 'Get Started';
+
+  @override
+  String get exploreAsGuest => 'Explore as Guest';
+
+  @override
+  String get loginToContinue => 'Please login to continue';
 }

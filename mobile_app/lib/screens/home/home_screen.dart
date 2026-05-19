@@ -83,6 +83,13 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          final auth = context.read<AuthProvider>();
+          if (auth.user == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(AppLocalizations.of(context)!.loginToContinue)),
+            );
+            return;
+          }
           // Navigate to support chat or conversation list
           Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ConversationListScreen()),
@@ -383,6 +390,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildDrawer() {
     final auth = context.read<AuthProvider>();
+    final isGuest = auth.user == null;
     return Drawer(
       child: Column(
         children: [
@@ -403,58 +411,63 @@ class _HomeScreenState extends State<HomeScreen> {
             title: Text(AppLocalizations.of(context)!.navHome),
             onTap: () => Navigator.pop(context),
           ),
+          if (!isGuest) ...[
+            ListTile(
+              leading: const Icon(Icons.message_outlined),
+              title: Text(AppLocalizations.of(context)!.navMessages),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ConversationListScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.book_online_outlined),
+              title: Text(AppLocalizations.of(context)!.navMyBookings),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const MyBookingsScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.report_problem_outlined, color: Colors.orange),
+              title: Text(AppLocalizations.of(context)!.navReportComplaint),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const ComplaintScreen()),
+                );
+              },
+            ),
+            const Spacer(),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.person_outline),
+              title: Text(AppLocalizations.of(context)!.navProfileSettings),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const CustomerProfileScreen()),
+                );
+              },
+            ),
+          ] else ...[
+            const Spacer(),
+            const Divider(),
+          ],
           ListTile(
-            leading: const Icon(Icons.message_outlined),
-            title: Text(AppLocalizations.of(context)!.navMessages),
+            leading: Icon(isGuest ? Icons.login : Icons.logout, color: isGuest ? AppTheme.primaryColor : Colors.pink),
+            title: Text(isGuest ? AppLocalizations.of(context)!.login : AppLocalizations.of(context)!.navLogout, style: TextStyle(color: isGuest ? AppTheme.primaryColor : Colors.pink)),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ConversationListScreen()),
+              if (!isGuest) auth.logout();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginScreen()),
+                (route) => false,
               );
             },
-          ),
-          ListTile(
-            leading: const Icon(Icons.book_online_outlined),
-            title: Text(AppLocalizations.of(context)!.navMyBookings),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const MyBookingsScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.report_problem_outlined, color: Colors.orange),
-            title: Text(AppLocalizations.of(context)!.navReportComplaint),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ComplaintScreen()),
-              );
-            },
-          ),
-          const Spacer(),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.person_outline),
-            title: Text(AppLocalizations.of(context)!.navProfileSettings),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const CustomerProfileScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.pink),
-            title: Text(AppLocalizations.of(context)!.navLogout, style: const TextStyle(color: Colors.pink)),
-            onTap: () {
-            auth.logout();
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(builder: (_) => const LoginScreen()),
-              (route) => false,
-            );
-          },
           ),
           const SizedBox(height: 20),
         ],

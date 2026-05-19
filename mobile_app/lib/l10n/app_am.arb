@@ -281,5 +281,11 @@
   "approve": "አጽድቅ",
   "pdfDocument": "የፒዲኤፍ ሰነድ",
   "external": "ውጫዊ",
-  "errorText": "ስህተት: {error}"
+  "errorText": "ስህተት: {error}",
+  "chatAddCaption": "መግለጫ ያክሉ (አማራጭ)",
+  "chatSend": "ላክ",
+  "chatCancel": "ሰርዝ",
+  "landingGetStarted": "ጀምር",
+  "exploreAsGuest": "እንደ እንግዳ ያስሱ",
+  "loginToContinue": "ለመቀጠል እባክዎ ይግቡ"
 }
