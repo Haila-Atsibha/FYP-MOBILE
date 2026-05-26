@@ -65,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
         nextScreen = const ProviderDashboardScreen();
       } else {
         nextScreen = const HomeScreen();
+      }
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => nextScreen),
       );
